@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="agaverosActividades.Controls.AppHeaderView"
+             x:Name="this">
+
+    <!--
+        Colores de marca escritos literales (no StaticResource) a propósito: este control se
+        usará dentro de páginas distintas, cada una con su propio ContentPage.Resources, y no
+        queremos que el header se vea distinto si alguna página llegara a no declarar
+        "ColorPrimario". Si más adelante centralizamos estos colores en App.xaml como recursos
+        globales, aquí se pueden volver a StaticResource sin tocar el resto del control.
+    -->
+
+    <VerticalStackLayout>
+
+        <!-- ===================== FRANJA DE IDENTIDAD: logo + usuario/perfil + fecha (+ ícono opcional) ===================== -->
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto" Padding="18,18,18,16" ColumnSpacing="14"
+              BackgroundColor="{AppThemeBinding Light=White, Dark=#121212}">
+
+            <Image Grid.Column="0" Source="logo.jpg" WidthRequest="38" HeightRequest="38"
+                   VerticalOptions="Center" />
+
+            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                <Label Text="{Binding Usuario}" FontSize="13" FontAttributes="Bold"
+                       LineBreakMode="TailTruncation"
+                       TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                <Label Text="{Binding Perfil}" FontSize="11"
+                       TextColor="{AppThemeBinding Light=Gray, Dark=#AAAAAA}" />
+            </VerticalStackLayout>
+
+            <!-- Fecha: siempre visible, en todas las páginas que usen este header. -->
+            <Border Grid.Column="2" StrokeShape="RoundRectangle 14" StrokeThickness="0"
+                    BackgroundColor="#1A9E3700" Padding="10,6" VerticalOptions="Center">
+                <HorizontalStackLayout Spacing="5">
+                    <Label Text="&#128197;" FontSize="11" VerticalOptions="Center" />
+                    <Label Text="{Binding FechaHoy, Source={x:Reference this}}" FontSize="11"
+                           FontAttributes="Bold" TextColor="#9E3700" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+
+            <!-- Ícono de identidad opcional (p. ej. cerrar sesión). Oculto por default.
+                 Circular y en tono suave (mismo lenguaje visual que la píldora de fecha),
+                 en vez de bloque sólido, para no competir con el logo. -->
+            <Border Grid.Column="3" StrokeShape="RoundRectangle 18" StrokeThickness="0"
+                    WidthRequest="36" HeightRequest="36"
+                    BackgroundColor="#1A9E3700" Padding="0" VerticalOptions="Center"
+                    IsVisible="{Binding MostrarIconoIdentidad, Source={x:Reference this}}">
+                <Label Text="{Binding IconoIdentidad, Source={x:Reference this}}"
+                       FontSize="16" TextColor="#9E3700" VerticalOptions="Center"
+                       HorizontalOptions="Center" HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ComandoIdentidad, Source={x:Reference this}}" />
+                </Border.GestureRecognizers>
+            </Border>
+        </Grid>
+
+        <!-- ===================== LÍNEA DIVISORA DE MARCA ===================== -->
+        <BoxView HeightRequest="3" BackgroundColor="#9E3700" />
+
+        <!-- ===================== FRANJA DE TÍTULO ===================== -->
+        <Grid ColumnDefinitions="Auto,*" Padding="14,10,14,8" ColumnSpacing="8"
+              BackgroundColor="{AppThemeBinding Light=White, Dark=#121212}"
+              IsVisible="{Binding MostrarFranjaTitulo, Source={x:Reference this}}">
+
+            <Border Grid.Column="0"
+        BackgroundColor="Transparent"
+        StrokeThickness="0"
+        Padding="8"
+        WidthRequest="44"
+        HeightRequest="44"
+        VerticalOptions="Center"
+        HorizontalOptions="Center"
+        IsVisible="{Binding MostrarBotonAtras, Source={x:Reference this}}">
+                <Label Text="{Binding IconoAtras, Source={x:Reference this}}"
+           FontSize="26" FontAttributes="Bold"
+           TextColor="#9E3700"
+           HorizontalOptions="Center" VerticalOptions="Center"
+           HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+           InputTransparent="True" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ComandoAtras, Source={x:Reference this}}" />
+                </Border.GestureRecognizers>
+            </Border>
+
+            <Label Grid.Column="1" Text="{Binding Titulo, Source={x:Reference this}}"
+                   FontSize="18" FontAttributes="Bold" TextColor="#9E3700"
+                   VerticalOptions="Center" LineBreakMode="TailTruncation" />
+        </Grid>
+
+        <!-- ===================== FRANJA DE ACCIONES (slot personalizado por página) ===================== -->
+        <ContentView x:Name="AccionesHost" Padding="14,2,14,12"
+                     BackgroundColor="{AppThemeBinding Light=White, Dark=#121212}"
+                     IsVisible="{Binding MostrarFranjaTitulo, Source={x:Reference this}}" />
+
+    </VerticalStackLayout>
+
+</ContentView>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="agaverosActividades.Views.VerImagenPage"
+             BackgroundColor="Black"
+             Shell.NavBarIsVisible="False">
+
+    <Grid>
+
+        <!-- ===================== IMAGEN CON ZOOM (pinch + doble tap) ===================== -->
+        <ContentView x:Name="ContenedorZoom"
+                     HorizontalOptions="Fill" VerticalOptions="Fill">
+            <Image x:Name="ImagenCompleta"
+                   Aspect="AspectFit"
+                   HorizontalOptions="Fill" VerticalOptions="Fill">
+                <Image.GestureRecognizers>
+                    <PinchGestureRecognizer PinchUpdated="OnPinchUpdated" />
+                    <PanGestureRecognizer PanUpdated="OnPanUpdated" />
+                    <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnDobleTap" />
+                </Image.GestureRecognizers>
+            </Image>
+        </ContentView>
+
+        <!-- ===================== BARRA SUPERIOR: CERRAR ===================== -->
+        <Grid VerticalOptions="Start" Padding="12,44,12,8" ColumnDefinitions="Auto,*">
+            <Border Grid.Column="0"
+                    BackgroundColor="#66000000"
+                    StrokeShape="RoundRectangle 20"
+                    Stroke="Transparent"
+                    Padding="0"
+                    WidthRequest="40" HeightRequest="40">
+                <Label Text="✕" TextColor="White" FontSize="20" FontAttributes="Bold"
+                       HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCerrarTapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </Border>
+        </Grid>
+
+        <!-- ===================== INDICADOR DE CARGA ===================== -->
+        <ActivityIndicator x:Name="Cargando" IsRunning="True" Color="White"
+                            HorizontalOptions="Center" VerticalOptions="Center" />
+
+    </Grid>
+
+</ContentPage>

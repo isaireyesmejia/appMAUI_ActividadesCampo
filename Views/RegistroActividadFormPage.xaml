@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:agaverosActividades.ViewModels"
+             xmlns:conv="clr-namespace:agaverosActividades.Converters"
+             xmlns:controls="clr-namespace:agaverosActividades.Controls"
+             x:Class="agaverosActividades.Views.RegistroActividadFormPage"
+             x:Name="PaginaRegistroActividadForm"
+             x:DataType="vm:RegistroActividadFormViewModel"
+             BackgroundColor="{AppThemeBinding Light=White, Dark=#121212}"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="ColorPrimario">#9E3700</Color>
+            <Color x:Key="ColorPrimarioSuave">#1A9E3700</Color>
+            <Color x:Key="ColorEliminar">#B3261E</Color>
+            <Color x:Key="ColorEliminarSuave">#1AB3261E</Color>
+            <Color x:Key="ColorHabilitado">White</Color>
+            <Color x:Key="ColorDeshabilitado">AliceBlue</Color>
+
+            <conv:BoolToAccentConverter x:Key="BoolToAccentConverter" />
+            <conv:BoolToFrameColorConverter x:Key="BoolToFrameColorConverter" />
+            <conv:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+
+            <!-- ===== Estilos con soporte Dark Mode ===== -->
+
+            <Style TargetType="Label">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+            </Style>
+
+            <Style TargetType="Entry">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                <Setter Property="FontSize" Value="13" />
+            </Style>
+
+            <Style TargetType="Editor">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                <Setter Property="FontSize" Value="13" />
+            </Style>
+
+            <Style TargetType="Picker">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                <Setter Property="FontSize" Value="13" />
+            </Style>
+
+            <Style TargetType="DatePicker">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                <Setter Property="FontSize" Value="13" />
+            </Style>
+
+            <Style TargetType="TimePicker">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                <Setter Property="FontSize" Value="13" />
+            </Style>
+
+            <Style x:Key="EtiquetaSeccion" TargetType="Label">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Gray, Dark=#AAAAAA}" />
+                <Setter Property="Margin" Value="0,4,0,0" />
+            </Style>
+
+            <Style x:Key="TituloSeccion" TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource ColorPrimario}" />
+            </Style>
+
+            <Style x:Key="CampoBorder" TargetType="Border">
+                <Setter Property="Stroke" Value="{AppThemeBinding Light=Black, Dark=#555555}" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+                <Setter Property="Padding" Value="10,4" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=#1E1E1E}" />
+            </Style>
+
+            <!-- ===== Sistema unificado de acciones tipo "chip" (Ver / Reemplazar / Quitar, etc.) ===== -->
+            <!-- Mismo diámetro y forma en toda la app: solo cambia color de fondo/ícono según sea acción
+                 neutra (Ver, Reemplazar) o destructiva (Quitar). Área táctil de 36px, cómoda para dedo. -->
+
+            <Style x:Key="ChipAccionCircular" TargetType="Border">
+                <Setter Property="WidthRequest" Value="36" />
+                <Setter Property="HeightRequest" Value="36" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 18" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="ChipAccionIcono" TargetType="Label">
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="VerticalTextAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="ChipAccionCaption" TargetType="Label">
+                <Setter Property="FontSize" Value="10" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Gray, Dark=#AAAAAA}" />
+                <Setter Property="Margin" Value="0,2,0,0" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- ===================== HEADER UNIFICADO ===================== -->
+        <!-- PASO 10 (uniformar encabezados): reemplaza el bloque manual de
+             logo/usuario/perfil/fecha + título/Guardar/Cerrar que vivía aquí, por el
+             componente reusable AppHeaderView (mismo header en todas las páginas de la app).
+             Se saca del ScrollView para que quede fijo arriba, en vez de scrollear con el
+             contenido — comportamiento más estándar para un header de página. -->
+        <controls:AppHeaderView Grid.Row="0"
+                                 Titulo="{Binding TituloPagina}"
+                                 MostrarBotonAtras="True"
+                                 ComandoAtras="{Binding CerrarCommand}">
+            <controls:AppHeaderView.Acciones>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Button Grid.Column="0" Text="Guardar" Command="{Binding GuardarCommand}"
+                            IsEnabled="{Binding GuardarHabilitado}"
+                            BackgroundColor="{StaticResource ColorPrimario}" TextColor="White"
+                            CornerRadius="8" Padding="14,6" />
+                    <Button Grid.Column="1" Text="Cerrar" Command="{Binding CerrarCommand}"
+                            BackgroundColor="Gray" TextColor="White"
+                            CornerRadius="8" Padding="14,6" />
+                </Grid>
+            </controls:AppHeaderView.Acciones>
+        </controls:AppHeaderView>
+
+        <Grid Grid.Row="1">
+            <ScrollView>
+                <VerticalStackLayout Padding="16" Spacing="10">
+
+                    <!-- ===================== DETALLE (solo si ya hay insumos capturados) ===================== -->
+                    <Border IsVisible="{Binding FrameDetallesVisible}"
+                            BackgroundColor="{AppThemeBinding Light=AliceBlue, Dark=#2A2A2A}"
+                            StrokeShape="RoundRectangle 10" Padding="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Grid.Column="0" Text="Ver detalle de la captura" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="›" FontSize="24" VerticalOptions="Center" TextColor="{StaticResource ColorPrimario}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding VerDetalleCommand}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                    </Border>
+
+                    <!-- ===================== DATOS GENERALES ===================== -->
+                    <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource ColorPrimario}" Padding="14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Datos generales" Style="{StaticResource TituloSeccion}" Margin="0,0,0,6" />
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="ID" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorder}" BackgroundColor="{AppThemeBinding Light=AliceBlue, Dark=#2A2A2A}">
+                                        <Entry Text="{Binding Id}" IsReadOnly="True" />
+                                    </Border>
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="Fecha" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorder}"
+                                            BackgroundColor="{Binding EsEdicion, Converter={StaticResource BoolToFrameColorConverter}}">
+                                        <DatePicker Date="{Binding Fecha}" IsEnabled="{Binding EsEdicion}"
+                                                    Format="dd/MM/yyyy" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Label Text="Predio" Style="{StaticResource EtiquetaSeccion}" />
+                            <Border Style="{StaticResource CampoBorder}"
+                                    BackgroundColor="{Binding EsEdicion, Converter={StaticResource BoolToFrameColorConverter}}">
+                                <Picker ItemsSource="{Binding Predios}"
+                                        ItemDisplayBinding="{Binding VchAuxiliarCodigo}"
+                                        SelectedItem="{Binding PredioSeleccionado}"
+                                        IsEnabled="{Binding EsEdicion}" />
+                            </Border>
+
+                            <Label Text="Unidad" Style="{StaticResource EtiquetaSeccion}" />
+                            <Border Style="{StaticResource CampoBorder}">
+                                <Picker ItemsSource="{Binding Vehiculos}"
+                                        ItemDisplayBinding="{Binding VchNombreCompleto}"
+                                        SelectedItem="{Binding VehiculoSeleccionado}" />
+                            </Border>
+
+                            <Label Text="Cuadrilla / Tractor" Style="{StaticResource EtiquetaSeccion}" />
+                            <Border Style="{StaticResource CampoBorder}">
+                                <Picker ItemsSource="{Binding TractoresCuadrillas}"
+                                        ItemDisplayBinding="{Binding VchDescripcion}"
+                                        SelectedItem="{Binding TractorCuadrillaSeleccionado}" />
+                            </Border>
+                            <!-- ===== Horómetro / Producción (solo visible si Tractor o Maquinaria) ===== -->
+                            <VerticalStackLayout Spacing="4" IsVisible="{Binding CamposHorometroHabilitados}" Margin="0,6,0,0">
+                                <Label Text="Horómetro / Producción" Style="{StaticResource EtiquetaSeccion}" FontAttributes="Bold" />
+
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                    <VerticalStackLayout Grid.Column="0">
+                                        <Label Text="Horómetro inicial" Style="{StaticResource EtiquetaSeccion}" />
+                                        <Border Style="{StaticResource CampoBorder}">
+                                            <Entry Keyboard="Numeric" Text="{Binding Inicial}" />
+                                        </Border>
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout Grid.Column="1">
+                                        <Label Text="Horómetro final" Style="{StaticResource EtiquetaSeccion}" />
+                                        <Border Style="{StaticResource CampoBorder}">
+                                            <Entry Keyboard="Numeric" Text="{Binding Final}" />
+                                        </Border>
+                                    </VerticalStackLayout>
+                                </Grid>
+
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                    <VerticalStackLayout Grid.Column="0">
+                                        <Label Text="Hora producción inicial" Style="{StaticResource EtiquetaSeccion}" />
+                                        <Border Style="{StaticResource CampoBorder}">
+                                            <TimePicker Time="{Binding ProduccionInicial}" Format="HH:mm" />
+                                        </Border>
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout Grid.Column="1">
+                                        <Label Text="Hora producción final" Style="{StaticResource EtiquetaSeccion}" />
+                                        <Border Style="{StaticResource CampoBorder}">
+                                            <TimePicker Time="{Binding ProduccionFinal}" Format="HH:mm" />
+                                        </Border>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </VerticalStackLayout>
+
+                            <Label Text="Jefe de Cuadrilla" Style="{StaticResource EtiquetaSeccion}" />
+                            <Border Style="{StaticResource CampoBorder}">
+                                <Picker ItemsSource="{Binding JefesCuadrilla}"
+                                        ItemDisplayBinding="{Binding VchNombre}"
+                                        SelectedItem="{Binding JefeCuadrillaSeleccionado}" />
+                            </Border>
+
+                            <Label Text="Tipo de cuadrilla" Style="{StaticResource EtiquetaSeccion}" Margin="0,8,0,0" />
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                <Button Grid.Column="0" Text="Interno"
+                                        Command="{Binding MarcarInternoCommand}"
+                                        BackgroundColor="{Binding EsInterno, Converter={StaticResource BoolToAccentConverter}}"
+                                        TextColor="White" CornerRadius="8" />
+                                <Button Grid.Column="1" Text="Externo"
+                                        Command="{Binding MarcarExternoCommand}"
+                                        BackgroundColor="{Binding EsExterno, Converter={StaticResource BoolToAccentConverter}}"
+                                        TextColor="White" CornerRadius="8" />
+                            </Grid>
+
+                            <Label Text="Proveedor" Style="{StaticResource EtiquetaSeccion}" />
+                            <Border Style="{StaticResource CampoBorder}"
+                                    BackgroundColor="{Binding ProveedorHabilitado, Converter={StaticResource BoolToFrameColorConverter}}">
+                                <Picker ItemsSource="{Binding Proveedores}"
+                                        ItemDisplayBinding="{Binding VchRazonSocial}"
+                                        SelectedItem="{Binding ProveedorSeleccionado}"
+                                        IsEnabled="{Binding ProveedorHabilitado}" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ===================== ACTIVIDAD ===================== -->
+                    <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource ColorPrimario}" Padding="14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Actividad" Style="{StaticResource TituloSeccion}" Margin="0,0,0,6" />
+
+                            <Label Text="Actividad" Style="{StaticResource EtiquetaSeccion}" />
+                            <Border Style="{StaticResource CampoBorder}">
+                                <Picker ItemsSource="{Binding Actividades}"
+                                        ItemDisplayBinding="{Binding VchDescripcion}"
+                                        SelectedItem="{Binding ActividadSeleccionada}" />
+                            </Border>
+
+                            <Label Text="Subactividad" Style="{StaticResource EtiquetaSeccion}" />
+                            <Border Style="{StaticResource CampoBorder}">
+                                <Picker ItemsSource="{Binding Subactividades}"
+                                        ItemDisplayBinding="{Binding VchSubActividad}"
+                                        SelectedItem="{Binding SubactividadSeleccionada}" />
+                            </Border>
+
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" Margin="0,4,0,0">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="Cantidad" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorder}">
+                                        <Entry Placeholder="0" Keyboard="Numeric" Text="{Binding CantidadActividad}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="{Binding UnidadActividad}" VerticalOptions="End" Margin="0,0,4,10"
+                                       TextColor="{AppThemeBinding Light=Gray, Dark=#AAAAAA}" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="No. de plantas" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorder}">
+                                        <Entry Keyboard="Numeric" Text="{Binding NoPlantas}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="No. de personas" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorder}">
+                                        <Entry Keyboard="Numeric" Text="{Binding NoPersonas}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <HorizontalStackLayout Spacing="8" Margin="0,6,0,0">
+                                <CheckBox IsChecked="{Binding SoloActividad}" Color="{StaticResource ColorPrimario}" />
+                                <Label Text="Solo actividad (sin materia prima)" VerticalOptions="Center" FontSize="13" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ===================== MATERIA PRIMA / PREPARACIÓN ===================== -->
+                    <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource ColorPrimario}" Padding="14"
+                            IsVisible="{Binding SoloActividad, Converter={StaticResource InvertedBoolConverter}}">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Insumos" Style="{StaticResource TituloSeccion}" Margin="0,0,0,6" />
+
+                            <Label Text="Preparación" Style="{StaticResource EtiquetaSeccion}" />
+                            <Border Style="{StaticResource CampoBorder}">
+                                <Picker ItemsSource="{Binding Preparaciones}"
+                                        ItemDisplayBinding="{Binding VchNombreComun}"
+                                        SelectedItem="{Binding PreparacionSeleccionada}" />
+                            </Border>
+
+                            <Label Text="{Binding LblPreparacionSeleccionada}" FontSize="12"
+                                   TextColor="{AppThemeBinding Light=Gray, Dark=#AAAAAA}" Margin="0,4,0,0" />
+
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="Cantidad" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorder}">
+                                        <Entry Keyboard="Numeric" Text="{Binding CantidadPreparacion}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="{Binding UnidadPreparacion}" VerticalOptions="End" Margin="0,0,4,10"
+                                       TextColor="{AppThemeBinding Light=Gray, Dark=#AAAAAA}" />
+                            </Grid>
+
+                            <Label Text="{Binding TipoPreparacion}" FontSize="12" TextColor="{AppThemeBinding Light=Gray, Dark=#AAAAAA}" />
+
+                            <Label Text="No. Vale de Salida" Style="{StaticResource EtiquetaSeccion}" />
+                            <Border Style="{StaticResource CampoBorder}"
+                                    BackgroundColor="{Binding NoValeSalidaHabilitado, Converter={StaticResource BoolToFrameColorConverter}}">
+                                <Entry Text="{Binding NoValeSalida}" IsEnabled="{Binding NoValeSalidaHabilitado}" />
+                            </Border>
+
+                            <Button Text="Agregar" Command="{Binding AgregarCommand}" IsEnabled="{Binding AgregarHabilitado}"
+                                    BackgroundColor="{StaticResource ColorPrimario}" TextColor="White"
+                                    CornerRadius="8" Margin="0,8,0,0" />
+                            <!-- ===== Lista de insumos ya agregados (pendientes de Guardar) ===== -->
+                            <CollectionView ItemsSource="{Binding InsumosAgregados}" Margin="0,8,0,0">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:InsumoAgregadoItem">
+                                        <Border StrokeShape="RoundRectangle 8" Stroke="#DDDDDD" Padding="10" Margin="0,4">
+                                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8">
+
+                                                <!-- Nombre -->
+                                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding Descripcion}"
+                                                       LineBreakMode="TailTruncation" FontSize="13" FontAttributes="Bold"
+                                                       VerticalOptions="Center" />
+
+                                                <!-- Eliminar: chip circular unificado -->
+                                                <Border Grid.Row="0" Grid.Column="1"
+                                                        Style="{StaticResource ChipAccionCircular}"
+                                                        BackgroundColor="{StaticResource ColorEliminarSuave}">
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer
+        Command="{Binding Source={x:Reference PaginaRegistroActividadForm}, Path=BindingContext.QuitarInsumoCommand}"
+        CommandParameter="{Binding .}" />
+                                                    </Border.GestureRecognizers>
+                                                    <Label Text="&#128465;" Style="{StaticResource ChipAccionIcono}"
+                                                           TextColor="{StaticResource ColorEliminar}" />
+                                                </Border>
+
+                                                <!-- Cantidad · Unidad · Vale de salida -->
+                                                <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="12" Margin="0,4,0,0">
+                                                    <Label FontSize="12" TextColor="Gray">
+                                                        <Label.FormattedText>
+                                                            <FormattedString>
+                                                                <Span Text="Cant: " />
+                                                                <Span Text="{Binding Cantidad}" />
+                                                                <Span Text=" " />
+                                                                <Span Text="{Binding Unidad}" />
+                                                            </FormattedString>
+                                                        </Label.FormattedText>
+                                                    </Label>
+
+                                                    <Label FontSize="12" TextColor="Gray">
+                                                        <Label.FormattedText>
+                                                            <FormattedString>
+                                                                <Span Text="Vale: " />
+                                                                <Span Text="{Binding NoValeSalida}" />
+                                                            </FormattedString>
+                                                        </Label.FormattedText>
+                                                    </Label>
+                                                </HorizontalStackLayout>
+
+                                                <!-- Ver materia prima (solo si es receta) -->
+                                                <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="Ver materia prima ›"
+                                                       FontSize="11" FontAttributes="Bold" TextColor="{StaticResource ColorPrimario}"
+                                                       IsVisible="{Binding EsReceta}" Margin="0,4,0,0">
+                                                    <Label.GestureRecognizers>
+                                                        <TapGestureRecognizer
+        Command="{Binding Source={x:Reference PaginaRegistroActividadForm}, Path=BindingContext.VerMateriaPrimaCommand}"
+        CommandParameter="{Binding .}" />
+                                                    </Label.GestureRecognizers>
+                                                </Label>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ===================== EQUIPO / IMPLEMENTO ===================== -->
+                    <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource ColorPrimario}" Padding="14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Equipo" Style="{StaticResource TituloSeccion}" Margin="0,0,0,6" />
+
+                            <Label Text="Equipo" Style="{StaticResource EtiquetaSeccion}" />
+                            <Border Style="{StaticResource CampoBorder}">
+                                <Picker ItemsSource="{Binding Equipos}"
+                                        ItemDisplayBinding="{Binding VchNombreConCodigo}"
+                                        SelectedItem="{Binding EquipoSeleccionado}" />
+                            </Border>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="Cantidad" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorder}">
+                                        <Entry Keyboard="Numeric" Text="{Binding CantidadEquipo}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="Unidad" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorder}">
+                                        <Picker Title="Unidad"
+                                            ItemsSource="{Binding UnidadesEquipo}"
+                                            ItemDisplayBinding="{Binding VchDescripcion}"
+                                            SelectedItem="{Binding UnidadEquipoSeleccionada}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Button Text="Agregar" Command="{Binding AgregarCommand}" IsEnabled="{Binding AgregarHabilitado}"
+                                    BackgroundColor="{StaticResource ColorPrimario}" TextColor="White"
+                                    CornerRadius="8" Margin="0,8,0,0" />
+
+                            <!-- ===== Lista de equipos/implementos ya agregados (pendientes de Guardar) ===== -->
+                            <CollectionView ItemsSource="{Binding ImplementosAgregados}" Margin="0,8,0,0">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ImplementoAgregadoItem">
+                                        <Grid ColumnDefinitions="*,Auto,Auto" Padding="0,6" ColumnSpacing="8">
+                                            <Label Grid.Column="0" Text="{Binding Descripcion}"
+                                                   LineBreakMode="TailTruncation" VerticalOptions="Center" FontSize="13" />
+                                            <Label Grid.Column="1" Text="{Binding Cantidad}"
+                                                   VerticalOptions="Center" FontSize="13" />
+
+                                            <!-- Eliminar: mismo chip circular usado en Insumos -->
+                                            <Border Grid.Column="2"
+                                                    Style="{StaticResource ChipAccionCircular}"
+                                                    BackgroundColor="{StaticResource ColorEliminarSuave}">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer
+        Command="{Binding Source={x:Reference PaginaRegistroActividadForm}, Path=BindingContext.QuitarImplementoCommand}"
+        CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="&#128465;" Style="{StaticResource ChipAccionIcono}"
+                                                       TextColor="{StaticResource ColorEliminar}" />
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ===================== IMAGEN / OBSERVACIONES ===================== -->
+                    <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource ColorPrimario}" Padding="14">
+                        <VerticalStackLayout Spacing="8">
+
+                            <!-- Sin imagen: captura directa a cámara como acción principal -->
+                            <VerticalStackLayout Spacing="6" IsVisible="{Binding HayImagen, Converter={StaticResource InvertedBoolConverter}}">
+                                <Button Text="📷  Tomar foto"
+                        Command="{Binding TomarFotoCommand}"
+                        BackgroundColor="{StaticResource ColorPrimario}" TextColor="White"
+                        CornerRadius="8" HeightRequest="52" FontSize="16" FontAttributes="Bold" />
+
+                                <Label Text="Elegir de galería"
+                       TextColor="{StaticResource ColorPrimario}" FontSize="13"
+                       HorizontalOptions="Center" Margin="0,2,0,0">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ElegirDeGaleriaCommand}" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+                            </VerticalStackLayout>
+
+                            <!-- Ya hay imagen: miniatura + acciones (Ver / Reemplazar / Galería / Quitar) como chips circulares -->
+                            <Grid IsVisible="{Binding HayImagen}" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border Grid.Column="0" StrokeShape="RoundRectangle 8" Stroke="{StaticResource ColorPrimario}"
+                        Padding="0" WidthRequest="64" HeightRequest="64">
+                                    <Image Source="{Binding ImagenPath}" Aspect="AspectFill" WidthRequest="64" HeightRequest="64">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding VerImagenCommand}" />
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                </Border>
+
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="6">
+                                    <Label Text="Imagen agregada" FontSize="13" FontAttributes="Bold" />
+
+                                    <HorizontalStackLayout Spacing="18">
+
+                                        <!-- Ver -->
+                                        <VerticalStackLayout Spacing="0" HorizontalOptions="Center">
+                                            <Border Style="{StaticResource ChipAccionCircular}"
+                                                    BackgroundColor="{StaticResource ColorPrimarioSuave}">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding VerImagenCommand}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="&#128065;" Style="{StaticResource ChipAccionIcono}"
+                                                       TextColor="{StaticResource ColorPrimario}" />
+                                            </Border>
+                                            <Label Text="Ver" Style="{StaticResource ChipAccionCaption}" />
+                                        </VerticalStackLayout>
+
+                                        <!-- Reemplazar (cámara) -->
+                                        <VerticalStackLayout Spacing="0" HorizontalOptions="Center">
+                                            <Border Style="{StaticResource ChipAccionCircular}"
+                                                    BackgroundColor="{StaticResource ColorPrimarioSuave}">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding TomarFotoCommand}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="&#128260;" Style="{StaticResource ChipAccionIcono}"
+                                                       TextColor="{StaticResource ColorPrimario}" />
+                                            </Border>
+                                            <Label Text="Reemplazar" Style="{StaticResource ChipAccionCaption}" />
+                                        </VerticalStackLayout>
+
+                                        <!-- Galería: mismo comando ElegirDeGaleriaCommand que ya reemplaza/limpia -->
+                                        <VerticalStackLayout Spacing="0" HorizontalOptions="Center">
+                                            <Border Style="{StaticResource ChipAccionCircular}"
+                                                    BackgroundColor="{StaticResource ColorPrimarioSuave}">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding ElegirDeGaleriaCommand}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="&#128247;" Style="{StaticResource ChipAccionIcono}"
+                                                       TextColor="{StaticResource ColorPrimario}" />
+                                            </Border>
+                                            <Label Text="Galería" Style="{StaticResource ChipAccionCaption}" />
+                                        </VerticalStackLayout>
+
+                                        <!-- Quitar: mismo chip circular / mismo ícono usado en Insumos y Equipos -->
+                                        <VerticalStackLayout Spacing="0" HorizontalOptions="Center">
+                                            <Border Style="{StaticResource ChipAccionCircular}"
+                                                    BackgroundColor="{StaticResource ColorEliminarSuave}">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding QuitarImagenCommand}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="&#128465;" Style="{StaticResource ChipAccionIcono}"
+                                                       TextColor="{StaticResource ColorEliminar}" />
+                                            </Border>
+                                            <Label Text="Quitar" Style="{StaticResource ChipAccionCaption}" />
+                                        </VerticalStackLayout>
+
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Label Text="Observaciones" Style="{StaticResource EtiquetaSeccion}" />
+                            <Border Style="{StaticResource CampoBorder}">
+                                <Editor Placeholder="Observaciones" Text="{Binding Observaciones}"
+                        AutoSize="TextChanges" HeightRequest="80" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- ===================== OVERLAY DE CARGA ===================== -->
+            <Grid IsVisible="{Binding Cargando}" BackgroundColor="#66000000">
+                <ActivityIndicator IsRunning="{Binding Cargando}" HorizontalOptions="Center" VerticalOptions="Center" Color="{StaticResource ColorPrimario}" />
+            </Grid>
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

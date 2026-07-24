@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:agaverosActividades.ViewModels"
+             xmlns:models="clr-namespace:agaverosActividades.Models.Actividades"
+             xmlns:conv="clr-namespace:agaverosActividades.Converters"
+             xmlns:controls="clr-namespace:agaverosActividades.Controls"
+            x:Class="agaverosActividades.Views.RegistroActividadesPrepTerrenoPage"
+x:DataType="vm:RegistroActividadesPrepTerrenoViewModel"
+Title="Preparación de Terreno"
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:SelectedItemToBackgroundColorConverter x:Key="SelectedItemToBackgroundColorConverter" />
+            <conv:SelectedItemToBorderColorConverter x:Key="SelectedItemToBorderColorConverter" />
+
+            <!-- Mismo chip circular usado en RegistroActividadFormPage, para consistencia de acciones en toda la app -->
+            <Style x:Key="ChipAccionCircular" TargetType="Border">
+                <Setter Property="WidthRequest" Value="44" />
+                <Setter Property="HeightRequest" Value="44" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 22" />
+                <Setter Property="StrokeThickness" Value="0" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="ChipAccionIcono" TargetType="Label">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="VerticalTextAlignment" Value="Center" />
+            </Style>
+
+            <!-- Nueva: caption bajo cada chip (ya existía en RegistroActividadFormPage, se replica aquí
+                 para que la botonera de acciones use el mismo patrón "ícono + texto" en vez de solo íconos
+                 sueltos como antes — más claro para el usuario y consistente con el resto de la app. -->
+            <Style x:Key="ChipAccionCaption" TargetType="Label">
+                <Setter Property="FontSize" Value="10" />
+                <Setter Property="HorizontalOptions" Value="Center" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Gray, Dark=#AAAAAA}" />
+                <Setter Property="Margin" Value="0,2,0,0" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+
+        <!-- ===== Todo el contenido en un solo ScrollView: header + filtros + lista =====
+         Esto permite hacer scroll de la pantalla completa en modo horizontal,
+         donde la altura disponible es poca y antes el CollectionView (con RowDefinitions="*")
+         se quedaba sin espacio y sin poder desplazarse junto con el resto. -->
+        <ScrollView>
+            <Grid RowDefinitions="Auto,Auto,Auto">
+
+                <!-- ===================== HEADER UNIFICADO ===================== -->
+                <controls:AppHeaderView Grid.Row="0"
+                                     Titulo="Preparación de Terreno"
+                                     MostrarBotonAtras="True"
+                                     ComandoAtras="{Binding CerrarCommand}">
+                    <controls:AppHeaderView.Acciones>
+                        <Grid ColumnDefinitions="*,*,*">
+                            <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center">
+                                <Border Style="{StaticResource ChipAccionCircular}" BackgroundColor="#1A9E3700">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding AgregarCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="&#10133;" Style="{StaticResource ChipAccionIcono}" TextColor="#9E3700" />
+                                </Border>
+                                <Label Text="Agregar" Style="{StaticResource ChipAccionCaption}" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
+                                <Border Style="{StaticResource ChipAccionCircular}" BackgroundColor="#1A9E3700">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding EditarCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="&#9998;" Style="{StaticResource ChipAccionIcono}" TextColor="#9E3700" />
+                                </Border>
+                                <Label Text="Editar" Style="{StaticResource ChipAccionCaption}" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
+                                <Border Style="{StaticResource ChipAccionCircular}" BackgroundColor="#1AB3261E">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding EliminarCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="&#128465;" Style="{StaticResource ChipAccionIcono}" TextColor="#B3261E" />
+                                </Border>
+                                <Label Text="Eliminar" Style="{StaticResource ChipAccionCaption}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </controls:AppHeaderView.Acciones>
+                </controls:AppHeaderView>
+
+                <!-- ===== Filtros ===== -->
+                <VerticalStackLayout Grid.Row="1"
+                                  BackgroundColor="{AppThemeBinding Light=White, Dark=#121212}"
+                                  Spacing="0">
+
+                    <Frame Margin="15,10,15,10"
+                       CornerRadius="10"
+                       Padding="0"
+                       BorderColor="#9E3700"
+                       BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+                        <VerticalStackLayout Spacing="10" Padding="10">
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="Zona"
+                                       FontSize="Caption"
+                                       FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                                    <Frame CornerRadius="10"
+                                       Padding="10,0,0,0"
+                                       BorderColor="{AppThemeBinding Light=Black, Dark=White}"
+                                       BackgroundColor="Transparent">
+                                        <Picker ItemsSource="{Binding Zonas}"
+                                            SelectedItem="{Binding ZonaSeleccionada}"
+                                            ItemDisplayBinding="{Binding VchNombre}"
+                                            FontSize="Caption"
+                                            FontAutoScalingEnabled="True"
+                                            TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                                    </Frame>
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="Municipio"
+                                       FontSize="Caption"
+                                       FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                                    <Frame CornerRadius="10"
+                                       Padding="10,0,0,0"
+                                       BorderColor="{AppThemeBinding Light=Black, Dark=White}"
+                                       BackgroundColor="Transparent">
+                                        <Picker ItemsSource="{Binding Municipios}"
+                                            SelectedItem="{Binding MunicipioSeleccionado}"
+                                            ItemDisplayBinding="{Binding VchNombre}"
+                                            FontSize="Caption"
+                                            FontAutoScalingEnabled="True"
+                                            TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                                    </Frame>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="Predio"
+                                       FontSize="Caption"
+                                       FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                                    <Frame CornerRadius="10"
+                                       Padding="10,0,0,0"
+                                       BorderColor="{AppThemeBinding Light=Black, Dark=White}"
+                                       BackgroundColor="Transparent">
+                                        <Picker ItemsSource="{Binding Predios}"
+                                            SelectedItem="{Binding PredioSeleccionado}"
+                                            ItemDisplayBinding="{Binding VchAuxiliarCodigo}"
+                                            FontSize="Caption"
+                                            FontAutoScalingEnabled="True"
+                                            TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                                    </Frame>
+                                </VerticalStackLayout>
+
+                                <Button Grid.Column="1"
+                                    Text="Mostrar"
+                                    Command="{Binding MostrarCommand}"
+                                    BackgroundColor="#9E3700"
+                                    TextColor="White"
+                                    FontAutoScalingEnabled="True"
+                                    VerticalOptions="End" />
+                            </Grid>
+
+                            <Frame CornerRadius="25"
+       Padding="14,8"
+       BorderColor="{AppThemeBinding Light=Black, Dark=White}"
+       BackgroundColor="Transparent">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Text="&#128197;" FontSize="16" VerticalOptions="Center" />
+
+                                    <DatePicker Grid.Column="1"
+                    Date="{Binding FechaBusqueda}"
+                    Format="dd/MM/yyyy"
+                    FontAutoScalingEnabled="True"
+                    TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+
+                                    <Label Grid.Column="2"
+               Text="&#10005;"
+               FontSize="16"
+               VerticalOptions="Center"
+               TextColor="#9E3700"
+               IsVisible="{Binding FiltroFechaActivo}">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding LimpiarFechaBusquedaCommand}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </Grid>
+                            </Frame>
+
+                        </VerticalStackLayout>
+                    </Frame>
+                </VerticalStackLayout>
+
+                <!-- ===== CollectionView: ahora Grid.Row="2" con Auto,
+                   crece según su contenido y el ScrollView externo se encarga del scroll ===== -->
+                <CollectionView Grid.Row="2"
+                            Margin="15,0,15,10"
+                            ItemsSource="{Binding Actividades}"
+                            SelectionMode="None">
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout HorizontalOptions="Center"
+                                         VerticalOptions="Center"
+                                         Padding="20">
+                            <Label Text="Sin registros para mostrar"
+                               FontSize="Caption"
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light=Gray, Dark=LightGray}" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:ActividadListItem">
+                            <Frame CornerRadius="10"
+                               Padding="10,5"
+                               Margin="2"
+                               HasShadow="False">
+                                <Frame.BackgroundColor>
+                                    <MultiBinding Converter="{StaticResource SelectedItemToBackgroundColorConverter}">
+                                        <Binding Path="." />
+                                        <Binding Path="BindingContext.ActividadSeleccionada"
+                                             Source="{RelativeSource AncestorType={x:Type ContentPage}}" />
+                                    </MultiBinding>
+                                </Frame.BackgroundColor>
+                                <Frame.BorderColor>
+                                    <MultiBinding Converter="{StaticResource SelectedItemToBorderColorConverter}">
+                                        <Binding Path="." />
+                                        <Binding Path="BindingContext.ActividadSeleccionada"
+                                             Source="{RelativeSource AncestorType={x:Type ContentPage}}" />
+                                    </MultiBinding>
+                                </Frame.BorderColor>
+
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SeleccionarActividadCommand}"
+                                    CommandParameter="{Binding .}" />
+                                </Frame.GestureRecognizers>
+
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding VchID}"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                                       FontSize="Caption"
+                                       FontAutoScalingEnabled="True" />
+                                    <HorizontalStackLayout Spacing="5">
+                                        <Label Text="{Binding DtmFecha, StringFormat='{0:dd/MM/yyyy}'}"
+                                           TextColor="{AppThemeBinding Light=Gray, Dark=LightGray}"
+                                           FontSize="Caption" />
+                                        <Label Text="." FontSize="Caption" />
+                                        <Label Text="{Binding VchEstatus}"
+                                           TextColor="{AppThemeBinding Light=Gray, Dark=LightGray}"
+                                           FontSize="Caption" />
+                                    </HorizontalStackLayout>
+                                    <Label Text="⏳ Sin sincronizar"
+           IsVisible="{Binding EsPendienteSincronizar}"
+           TextColor="#E74C3C" FontSize="11" FontAttributes="Bold" />
+                                    <Label Text="✏️ Cambios sin sincronizar"
+           IsVisible="{Binding TieneCambiosPendientes}"
+           TextColor="#E74C3C" FontSize="11" FontAttributes="Bold" />
+                                </VerticalStackLayout>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </Grid>
+        </ScrollView>
+
+        <!-- Overlay de cargando -->
+        <Grid Opacity="0.8"
+          BackgroundColor="Black"
+          IsVisible="{Binding IsLoading}">
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Color="#9E3700" />
+        </Grid>
+
+    </Grid>
+</ContentPage>

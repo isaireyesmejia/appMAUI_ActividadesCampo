@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:agaverosActividades.ViewModels"
+             x:Class="agaverosActividades.Views.Login"
+             Shell.NavBarIsVisible="False"
+             Shell.FlyoutBehavior="Disabled"
+             NavigationPage.HasNavigationBar="False"
+             BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#121212}">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+
+            <Style x:Key="FixedRadioButtonStyle" TargetType="RadioButton">
+                <Setter Property="ControlTemplate">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Grid WidthRequest="26"
+                                  HeightRequest="26"
+                                  HorizontalOptions="Center"
+                                  VerticalOptions="Center">
+                                <Ellipse Stroke="#9E3700"
+                                         StrokeThickness="2"
+                                         Fill="Transparent"
+                                         WidthRequest="26"
+                                         HeightRequest="26"
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Center"/>
+                                <Ellipse x:Name="Dot"
+                                         Fill="#9E3700"
+                                         WidthRequest="14"
+                                         HeightRequest="14"
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Center"
+                                         Opacity="0"/>
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroupList>
+                                        <VisualStateGroup x:Name="CheckedStates">
+                                            <VisualState x:Name="Checked">
+                                                <VisualState.Setters>
+                                                    <Setter TargetName="Dot" Property="Opacity" Value="1"/>
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Unchecked">
+                                                <VisualState.Setters>
+                                                    <Setter TargetName="Dot" Property="Opacity" Value="0"/>
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateGroupList>
+                                </VisualStateManager.VisualStateGroups>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <ScrollView>
+            <Grid RowDefinitions="*,Auto,*"
+                  Padding="24,40"
+                  BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#121212}">
+
+                <Border Grid.Row="1"
+                        StrokeShape="RoundRectangle 22"
+                        Stroke="Transparent"
+                        Padding="28,32"
+                        BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+                        HorizontalOptions="Center"
+                        MaximumWidthRequest="440"
+                        WidthRequest="-1">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Opacity="0.10" Radius="20" Offset="0,8"/>
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="16">
+
+                        <Border Padding="12"
+                                StrokeShape="RoundRectangle 16"
+                                Stroke="Transparent"
+                                BackgroundColor="White"
+                                HorizontalOptions="Center">
+                            <Image HorizontalOptions="Center"
+                                   Aspect="AspectFit"
+                                   WidthRequest="200"
+                                   HeightRequest="110"
+                                   Source="logo.jpg"/>
+                        </Border>
+
+                        <StackLayout Orientation="Vertical" Spacing="2" Margin="0,4,0,10">
+                            <Label HorizontalTextAlignment="Center"
+                                   Text="ERP AGAVE"
+                                   FontAttributes="Bold"
+                                   FontSize="30"
+                                   TextColor="{AppThemeBinding Light=#9E3700, Dark=#FF9E63}"/>
+                            <Label HorizontalTextAlignment="Center"
+                                   Text="Actividades"
+                                   FontSize="15"
+                                   TextColor="{AppThemeBinding Light=Gray, Dark=#AAAAAA}"/>
+                        </StackLayout>
+
+                        <Border StrokeShape="RoundRectangle 12"
+                                Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#2A2A2A}"
+                                StrokeThickness="1"
+                                Padding="14,4"
+                                BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+                            <Entry Placeholder="Usuario"
+                                   TextTransform="Lowercase"
+                                   PlaceholderColor="{AppThemeBinding Light=Gray, Dark=#AAAAAA}"
+                                   FontSize="14"
+                                   MinimumHeightRequest="44"
+                                   Keyboard="Text"
+                                   TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                                   BackgroundColor="Transparent"
+                                   Text="{Binding Usuario}"/>
+                        </Border>
+
+                        <Border StrokeShape="RoundRectangle 12"
+                                Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#2A2A2A}"
+                                StrokeThickness="1"
+                                Padding="14,4">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Entry Grid.Column="0"
+                                       Placeholder="Contraseña"
+                                       PlaceholderColor="{AppThemeBinding Light=Gray, Dark=#AAAAAA}"
+                                       FontSize="14"
+                                       MinimumHeightRequest="44"
+                                       Keyboard="Text"
+                                       TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                                       BackgroundColor="Transparent"
+                                       Text="{Binding Password}"
+                                       IsPassword="{Binding EsPassword}"
+                                       VerticalOptions="Center"/>
+
+                                <ImageButton Grid.Column="1"
+                                             Source="{Binding IconoPassword}"
+                                             WidthRequest="26"
+                                             HeightRequest="26"
+                                             BackgroundColor="Transparent"
+                                             HorizontalOptions="Center"
+                                             VerticalOptions="Center"
+                                             Command="{Binding TogglePasswordCommand}"/>
+                            </Grid>
+                        </Border>
+
+                        <Grid RowDefinitions="Auto,Auto"
+                              ColumnDefinitions="Auto,*"
+                              RowSpacing="8"
+                              Margin="4,6,0,0"
+                              HorizontalOptions="Start">
+
+                            <RadioButton Grid.Row="0" Grid.Column="0"
+                                         Style="{StaticResource FixedRadioButtonStyle}"
+                                         HorizontalOptions="Center" VerticalOptions="Center"
+                                         IsChecked="{Binding ModoOnline}"/>
+                            <Label Grid.Row="0" Grid.Column="1"
+                                   HorizontalOptions="Start" VerticalOptions="Center"
+                                   FontSize="14" FontAttributes="Bold"
+                                   Text="En Línea"
+                                   TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+
+                            <RadioButton Grid.Row="1" Grid.Column="0"
+                                         Style="{StaticResource FixedRadioButtonStyle}"
+                                         HorizontalOptions="Center" VerticalOptions="Center"
+                                         IsChecked="{Binding ModoOffline}"/>
+                            <Label Grid.Row="1" Grid.Column="1"
+                                   HorizontalOptions="Start" VerticalOptions="Center"
+                                   FontSize="14" FontAttributes="Bold"
+                                   Text="Fuera de Línea"
+                                   TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                        </Grid>
+
+                        <Button Text="Iniciar Sesión"
+                                TextColor="White"
+                                FontAttributes="Bold"
+                                FontSize="Medium"
+                                MinimumHeightRequest="48"
+                                CornerRadius="12"
+                                HorizontalOptions="Fill"
+                                BackgroundColor="#9E3700"
+                                Margin="0,6,0,0"
+                                Command="{Binding IniciarSesionCommand}"/>
+
+                        <ActivityIndicator HorizontalOptions="Center"
+                                           WidthRequest="42"
+                                           HeightRequest="42"
+                                           Color="#9E3700"
+                                           IsRunning="{Binding EstaCargando}"
+                                           IsVisible="{Binding EstaCargando}"/>
+
+                        <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Spacing="2">
+                            <Label Text="Versión "
+                                   FontSize="11"
+                                   TextColor="{AppThemeBinding Light=Gray, Dark=#888888}"/>
+                            <Label Text="{Binding VersionApp}"
+                                   FontSize="11"
+                                   TextColor="{AppThemeBinding Light=Gray, Dark=#888888}"/>
+                        </StackLayout>
+
+                    </VerticalStackLayout>
+                </Border>
+
+            </Grid>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

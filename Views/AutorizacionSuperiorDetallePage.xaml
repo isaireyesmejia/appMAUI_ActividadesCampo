@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:agaverosActividades.ViewModels"
+             xmlns:models="clr-namespace:agaverosActividades.Models.Actividades"
+             xmlns:conv="clr-namespace:agaverosActividades.Converters"
+             xmlns:controls="clr-namespace:agaverosActividades.Controls"
+             x:Class="agaverosActividades.Views.AutorizacionSuperiorDetallePage"
+             x:Name="PaginaAutorizacionSuperiorDetalle"
+             x:DataType="vm:AutorizacionSuperiorDetalleViewModel"
+             BackgroundColor="{AppThemeBinding Light=White, Dark=#121212}"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="ColorPrimario">#9E3700</Color>
+            <Color x:Key="ColorPrimarioSuave">#1A9E3700</Color>
+            <Color x:Key="ColorRechazar">#B3261E</Color>
+            <Color x:Key="ColorRechazarSuave">#1AB3261E</Color>
+
+            <conv:NullToBoolConverter x:Key="NullToBoolConverter" />
+
+            <Style TargetType="Label">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+            </Style>
+
+            <Style TargetType="Editor">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+                <Setter Property="FontSize" Value="13" />
+            </Style>
+
+            <!-- Mismo acomodo (tarjeta con sombra + franja de acento), colores originales de la app -->
+            <Style x:Key="TarjetaSeccion" TargetType="Border">
+                <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+                <Setter Property="Stroke" Value="{StaticResource ColorPrimario}" />
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark=#1E1E1E}" />
+                <Setter Property="Padding" Value="18" />
+                <Setter Property="Shadow">
+                    <Shadow Brush="#40000000" Offset="0,3" Radius="12" Opacity="0.12" />
+                </Setter>
+            </Style>
+
+            <Style x:Key="EtiquetaSeccion" TargetType="Label">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Gray, Dark=#AAAAAA}" />
+                <Setter Property="Margin" Value="0,0,0,3" />
+            </Style>
+
+            <Style x:Key="TituloSeccion" TargetType="Label">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource ColorPrimario}" />
+                <Setter Property="VerticalOptions" Value="Center" />
+            </Style>
+
+            <Style x:Key="CampoBorderSoloLectura" TargetType="Border">
+                <Setter Property="Stroke" Value="{AppThemeBinding Light=Black, Dark=#555555}" />
+                <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+                <Setter Property="Padding" Value="10,8" />
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=AliceBlue, Dark=#2A2A2A}" />
+            </Style>
+
+            <Style x:Key="ValorSoloLectura" TargetType="Label">
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="TextColor" Value="{AppThemeBinding Light=Black, Dark=White}" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- ===================== HEADER UNIFICADO ===================== -->
+        <controls:AppHeaderView Grid.Row="0"
+                                 Titulo="Detalle - Autorización Superior"
+                                 MostrarBotonAtras="True"
+                                 ComandoAtras="{Binding CerrarCommand}">
+            <controls:AppHeaderView.Acciones>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Button Grid.Column="0" Text="Autorizar" Command="{Binding AutorizarCommand}"
+                            BackgroundColor="{StaticResource ColorPrimario}" TextColor="White"
+                            CornerRadius="8" Padding="14,6" />
+                    <Button Grid.Column="1" Text="Rechazar" Command="{Binding AbrirRechazoCommand}"
+                            BackgroundColor="{StaticResource ColorRechazar}" TextColor="White"
+                            CornerRadius="8" Padding="14,6" />
+                </Grid>
+            </controls:AppHeaderView.Acciones>
+        </controls:AppHeaderView>
+
+        <Grid Grid.Row="1">
+            <ScrollView>
+                <VerticalStackLayout Padding="14,16" Spacing="18">
+
+                    <!-- ===================== DATOS GENERALES ===================== -->
+                    <Border Style="{StaticResource TarjetaSeccion}">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="4,*" ColumnSpacing="10" Margin="0,0,0,4">
+                                <BoxView Grid.Column="0" Color="{StaticResource ColorPrimario}" CornerRadius="2" HeightRequest="18" HorizontalOptions="Start" />
+                                <Label Grid.Column="1" Text="Datos generales" Style="{StaticResource TituloSeccion}" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="ID" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding Id}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="Fecha" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding Fecha, StringFormat='{0:dd/MM/yyyy}'}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="Unidad" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding NombreVehiculo}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="Predio" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding NombrePredio}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="Cuadrilla / Tractor" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding NombreTractorCuadrilla}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="Jefe de Cuadrilla" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding JefeCuadrilla}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <VerticalStackLayout>
+                                <Label Text="Tipo de cuadrilla" Style="{StaticResource EtiquetaSeccion}" />
+                                <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                    <Label Text="{Binding TipoCuadrilla}" Style="{StaticResource ValorSoloLectura}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Proveedor/Operador/Código de Unidad: solo si es cuadrilla Externa -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10"
+                                  IsVisible="{Binding EsExterno}">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="Proveedor" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding NombreProveedor}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="Operador" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding NombreOperador}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <VerticalStackLayout IsVisible="{Binding EsExterno}">
+                                <Label Text="Código de Unidad" Style="{StaticResource EtiquetaSeccion}" />
+                                <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                    <Label Text="{Binding CodigoUnidad}" Style="{StaticResource ValorSoloLectura}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- Horas / Horómetro: solo si aplica (Tractor/Maquinaria) -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10"
+                                  IsVisible="{Binding CamposHorasVisibles}">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="Horómetro inicial" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding HorometroInicial}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="Horómetro final" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding HorometroFinal}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10"
+                                  IsVisible="{Binding CamposHorasVisibles}">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="Horas prod." Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding HorasProductivas}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="Horas muertas" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding HorasMuertas}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2">
+                                    <Label Text="Horas P.D." Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding HorasPD}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <VerticalStackLayout>
+                                <Label Text="Horas Extra" Style="{StaticResource EtiquetaSeccion}" />
+                                <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                    <Label Text="{Binding HorasExtras}" Style="{StaticResource ValorSoloLectura}" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ===================== ACTIVIDAD REALIZADA ===================== -->
+                    <Border Style="{StaticResource TarjetaSeccion}">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="4,*" ColumnSpacing="10" Margin="0,0,0,4">
+                                <BoxView Grid.Column="0" Color="{StaticResource ColorPrimario}" CornerRadius="2" HeightRequest="18" HorizontalOptions="Start" />
+                                <Label Grid.Column="1" Text="Actividad Realizada" Style="{StaticResource TituloSeccion}" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="Actividad" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding NombreActividad}" Style="{StaticResource ValorSoloLectura}" FontAttributes="Bold" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="Sub-Actividad" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding NombreSubactividad}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="Cantidad" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding CantidadActividad}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="Unidad" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding UnidadActividad}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2">
+                                    <Label Text="Plantas" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding NoPlantas}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="3">
+                                    <Label Text="Personas" Style="{StaticResource EtiquetaSeccion}" />
+                                    <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                        <Label Text="{Binding NoPersonas}" Style="{StaticResource ValorSoloLectura}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ===================== MATERIA PRIMA ===================== -->
+                    <Border Style="{StaticResource TarjetaSeccion}" IsVisible="{Binding HayMateriasPrimas}">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="4,*" ColumnSpacing="10">
+                                <BoxView Grid.Column="0" Color="{StaticResource ColorPrimario}" CornerRadius="2" HeightRequest="18" HorizontalOptions="Start" />
+                                <Label Grid.Column="1" Text="Materia Prima" Style="{StaticResource TituloSeccion}" />
+                            </Grid>
+                            <CollectionView ItemsSource="{Binding MateriasPrimas}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:MateriaPrimaUtilizadoDetalleModel">
+                                        <Border Style="{StaticResource CampoBorderSoloLectura}" Margin="0,3">
+                                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                                <Label Grid.Column="0" Text="{Binding VchMateriaPrima}" Style="{StaticResource ValorSoloLectura}" FontAttributes="Bold" />
+                                                <Label Grid.Column="1" Style="{StaticResource ValorSoloLectura}">
+                                                    <Label.FormattedText>
+                                                        <FormattedString>
+                                                            <Span Text="{Binding DecCantidadAplicado}" />
+                                                            <Span Text=" " />
+                                                            <Span Text="{Binding VchUnidad}" />
+                                                        </FormattedString>
+                                                    </Label.FormattedText>
+                                                </Label>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ===================== INSUMOS ===================== -->
+                    <Border Style="{StaticResource TarjetaSeccion}" IsVisible="{Binding HayInsumos}">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="4,*" ColumnSpacing="10">
+                                <BoxView Grid.Column="0" Color="{StaticResource ColorPrimario}" CornerRadius="2" HeightRequest="18" HorizontalOptions="Start" />
+                                <Label Grid.Column="1" Text="Insumos" Style="{StaticResource TituloSeccion}" />
+                            </Grid>
+                            <CollectionView ItemsSource="{Binding Insumos}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:InsumoUtilizadoDetalleModel">
+                                        <Border Style="{StaticResource CampoBorderSoloLectura}" Margin="0,3">
+                                            <VerticalStackLayout Spacing="3">
+                                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                                    <Label Grid.Column="0" Text="{Binding VchInsumo}" Style="{StaticResource ValorSoloLectura}" FontAttributes="Bold" />
+                                                    <Label Grid.Column="1" Style="{StaticResource ValorSoloLectura}">
+                                                        <Label.FormattedText>
+                                                            <FormattedString>
+                                                                <Span Text="{Binding DecValor}" />
+                                                                <Span Text=" " />
+                                                                <Span Text="{Binding VchUnidad}" />
+                                                            </FormattedString>
+                                                        </Label.FormattedText>
+                                                    </Label>
+                                                </Grid>
+                                                <Label Text="{Binding VchTipoPreparacion}" Style="{StaticResource EtiquetaSeccion}" Margin="0"
+                                                       IsVisible="{Binding VchTipoPreparacion, Converter={StaticResource NullToBoolConverter}}" />
+                                                <Label Style="{StaticResource EtiquetaSeccion}" Margin="0"
+                                                       IsVisible="{Binding VchNoValeDeSalida, Converter={StaticResource NullToBoolConverter}}">
+                                                    <Label.FormattedText>
+                                                        <FormattedString>
+                                                            <Span Text="Vale de salida: " />
+                                                            <Span Text="{Binding VchNoValeDeSalida}" />
+                                                        </FormattedString>
+                                                    </Label.FormattedText>
+                                                </Label>
+                                            </VerticalStackLayout>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ===================== IMPLEMENTO ===================== -->
+                    <Border Style="{StaticResource TarjetaSeccion}" IsVisible="{Binding HayImplementos}">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="4,*" ColumnSpacing="10">
+                                <BoxView Grid.Column="0" Color="{StaticResource ColorPrimario}" CornerRadius="2" HeightRequest="18" HorizontalOptions="Start" />
+                                <Label Grid.Column="1" Text="Implemento" Style="{StaticResource TituloSeccion}" />
+                            </Grid>
+                            <CollectionView ItemsSource="{Binding Implementos}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:ImplementoUtilizadoDetalleModel">
+                                        <Border Style="{StaticResource CampoBorderSoloLectura}" Margin="0,3">
+                                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                                <Label Grid.Column="0" Text="{Binding VchNombre}" Style="{StaticResource ValorSoloLectura}" FontAttributes="Bold" />
+                                                <Label Grid.Column="1" Text="{Binding DecCantidad}" Style="{StaticResource ValorSoloLectura}" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ===================== IMAGEN / OBSERVACIONES ===================== -->
+                    <Border Style="{StaticResource TarjetaSeccion}">
+                        <VerticalStackLayout Spacing="10">
+
+                            <VerticalStackLayout IsVisible="{Binding HayImagen}" Spacing="6">
+                                <Grid ColumnDefinitions="4,*" ColumnSpacing="10">
+                                    <BoxView Grid.Column="0" Color="{StaticResource ColorPrimario}" CornerRadius="2" HeightRequest="18" HorizontalOptions="Start" />
+                                    <Label Grid.Column="1" Text="Imagen" Style="{StaticResource TituloSeccion}" />
+                                </Grid>
+                                <Border StrokeShape="RoundRectangle 8" Stroke="{StaticResource ColorPrimario}"
+                                        Padding="0" HeightRequest="180">
+                                    <Image Source="{Binding ImagenPath}" Aspect="AspectFit" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout>
+                                <Label Text="Observaciones" Style="{StaticResource EtiquetaSeccion}" />
+                                <Border Style="{StaticResource CampoBorderSoloLectura}">
+                                    <Label Text="{Binding Observaciones}" Style="{StaticResource ValorSoloLectura}" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <BoxView HeightRequest="8" Color="Transparent" />
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- ===================== OVERLAY: MOTIVO DE RECHAZO ===================== -->
+            <Grid IsVisible="{Binding MostrarPopupRechazo}" BackgroundColor="#88000000">
+                <Border StrokeShape="RoundRectangle 14" Stroke="{StaticResource ColorRechazar}"
+                        BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+                        Padding="18" Margin="24" VerticalOptions="Center">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Motivo de Rechazo" Style="{StaticResource TituloSeccion}" TextColor="{StaticResource ColorRechazar}" />
+                        <Label Text="Explica brevemente por qué se rechaza este registro." Style="{StaticResource EtiquetaSeccion}" Margin="0" />
+
+                        <Border Stroke="{AppThemeBinding Light=Black, Dark=#555555}" StrokeShape="RoundRectangle 10" Padding="10,4">
+                            <Editor Placeholder="Motivo de rechazo" Text="{Binding MotivoRechazo}"
+                                    AutoSize="TextChanges" HeightRequest="90" />
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,4,0,0">
+                            <Button Grid.Column="0" Text="Cancelar" Command="{Binding CancelarRechazoCommand}"
+                                    BackgroundColor="Gray" TextColor="White" CornerRadius="8" Padding="14,6" />
+                            <Button Grid.Column="1" Text="Confirmar" Command="{Binding ConfirmarRechazoCommand}"
+                                    BackgroundColor="{StaticResource ColorRechazar}" TextColor="White" CornerRadius="8" Padding="14,6" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- ===================== OVERLAY DE CARGA ===================== -->
+            <Grid IsVisible="{Binding Cargando}" BackgroundColor="#66000000">
+                <ActivityIndicator IsRunning="{Binding Cargando}" HorizontalOptions="Center" VerticalOptions="Center" Color="{StaticResource ColorPrimario}" />
+            </Grid>
+        </Grid>
+
+    </Grid>
+
+</ContentPage>
