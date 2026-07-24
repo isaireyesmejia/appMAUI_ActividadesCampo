@@ -81,7 +81,9 @@ namespace agaverosActividades.ViewModels
         [ObservableProperty] private bool camposHorasVisibles;
         [ObservableProperty] private string horasExtras = string.Empty;
 
-        [ObservableProperty] private string imagenPath = string.Empty;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HayImagen))]
+        private string imagenPath = string.Empty;
         public bool HayImagen => !string.IsNullOrEmpty(ImagenPath);
 
         // ===================== ESTATUS / AUTORIZACIÓN (solo lectura) =====================

@@ -18,7 +18,7 @@
         <Grid ColumnDefinitions="Auto,*,Auto,Auto" Padding="18,18,18,16" ColumnSpacing="14"
               BackgroundColor="{AppThemeBinding Light=White, Dark=#121212}">
 
-            <Image Grid.Column="0" Source="logo.jpg" WidthRequest="38" HeightRequest="38"
+            <Image Grid.Column="0" Source="logo1.jpg" WidthRequest="38" HeightRequest="38"
                    VerticalOptions="Center" />
 
             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">

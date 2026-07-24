@@ -47,8 +47,7 @@ namespace agaverosActividades.ViewModels
             _authService = authService;
             _sesionApp = sesionApp;
             _usuarioCacheService = usuarioCacheService;
-            VersionApp = System.Reflection.Assembly
-                .GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0.0";
+            VersionApp = AppInfo.Current.VersionString;
         }
 
         // ── Se ejecutan automáticamente al cambiar la propiedad ──────

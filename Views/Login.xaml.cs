@@ -50,4 +50,31 @@ public partial class Login : ContentPage
     {
         await DisplayAlert(titulo, mensaje, "OK");
     }
+
+    // ── Efecto visual de foco en los campos Usuario/Contraseña ──────
+    private void OnEntryFocused(object sender, FocusEventArgs e)
+    {
+        if (sender is Entry entry && entry.Parent is Border border)
+        {
+            border.Stroke = Color.FromArgb("#9E3700");
+            border.StrokeThickness = 2;
+        }
+    }
+
+    private void OnEntryUnfocused(object sender, FocusEventArgs e)
+    {
+        if (sender is Entry entry)
+        {
+            // El Entry de Contraseña está dentro de un Grid, no directo en el Border,
+            // por eso se revisa también el Parent del Parent.
+            var border = entry.Parent as Border ?? (entry.Parent?.Parent as Border);
+            if (border != null)
+            {
+                border.Stroke = Application.Current!.RequestedTheme == AppTheme.Dark
+                    ? Color.FromArgb("#2A2A2A")
+                    : Color.FromArgb("#E0E0E0");
+                border.StrokeThickness = 1;
+            }
+        }
+    }
 }

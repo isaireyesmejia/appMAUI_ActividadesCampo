@@ -102,12 +102,32 @@
                                    TextColor="{AppThemeBinding Light=Gray, Dark=#AAAAAA}"/>
                         </StackLayout>
 
+                        <!-- Campo Usuario -->
                         <Border StrokeShape="RoundRectangle 12"
                                 Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#2A2A2A}"
                                 StrokeThickness="1"
                                 Padding="14,4"
                                 BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
-                            <Entry Placeholder="Usuario"
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroupList>
+                                    <VisualStateGroup x:Name="FocusStatesUsuario">
+                                        <VisualState x:Name="Focused">
+                                            <VisualState.Setters>
+                                                <Setter Property="Stroke" Value="#9E3700"/>
+                                                <Setter Property="StrokeThickness" Value="2"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="Unfocused">
+                                            <VisualState.Setters>
+                                                <Setter Property="Stroke" Value="{AppThemeBinding Light=#E0E0E0, Dark=#2A2A2A}"/>
+                                                <Setter Property="StrokeThickness" Value="1"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateGroupList>
+                            </VisualStateManager.VisualStateGroups>
+                            <Entry x:Name="UsuarioEntry"
+                                   Placeholder="Usuario"
                                    TextTransform="Lowercase"
                                    PlaceholderColor="{AppThemeBinding Light=Gray, Dark=#AAAAAA}"
                                    FontSize="14"
@@ -115,15 +135,37 @@
                                    Keyboard="Text"
                                    TextColor="{AppThemeBinding Light=Black, Dark=White}"
                                    BackgroundColor="Transparent"
-                                   Text="{Binding Usuario}"/>
+                                   Text="{Binding Usuario}"
+                                   Focused="OnEntryFocused"
+                                   Unfocused="OnEntryUnfocused"/>
                         </Border>
 
+                        <!-- Campo Contraseña -->
                         <Border StrokeShape="RoundRectangle 12"
                                 Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#2A2A2A}"
                                 StrokeThickness="1"
                                 Padding="14,4">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroupList>
+                                    <VisualStateGroup x:Name="FocusStatesPassword">
+                                        <VisualState x:Name="Focused">
+                                            <VisualState.Setters>
+                                                <Setter Property="Stroke" Value="#9E3700"/>
+                                                <Setter Property="StrokeThickness" Value="2"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="Unfocused">
+                                            <VisualState.Setters>
+                                                <Setter Property="Stroke" Value="{AppThemeBinding Light=#E0E0E0, Dark=#2A2A2A}"/>
+                                                <Setter Property="StrokeThickness" Value="1"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateGroupList>
+                            </VisualStateManager.VisualStateGroups>
                             <Grid ColumnDefinitions="*,Auto">
                                 <Entry Grid.Column="0"
+                                       x:Name="PasswordEntry"
                                        Placeholder="Contraseña"
                                        PlaceholderColor="{AppThemeBinding Light=Gray, Dark=#AAAAAA}"
                                        FontSize="14"
@@ -133,12 +175,16 @@
                                        BackgroundColor="Transparent"
                                        Text="{Binding Password}"
                                        IsPassword="{Binding EsPassword}"
-                                       VerticalOptions="Center"/>
+                                       VerticalOptions="Center"
+                                       Focused="OnEntryFocused"
+                                       Unfocused="OnEntryUnfocused"/>
 
                                 <ImageButton Grid.Column="1"
                                              Source="{Binding IconoPassword}"
-                                             WidthRequest="26"
-                                             HeightRequest="26"
+                                             WidthRequest="20"
+                                             HeightRequest="20"
+                                             Padding="0"
+                                             BorderWidth="0"
                                              BackgroundColor="Transparent"
                                              HorizontalOptions="Center"
                                              VerticalOptions="Center"
@@ -146,8 +192,10 @@
                             </Grid>
                         </Border>
 
+                        <!-- Radio buttons modo online/offline -->
                         <Grid RowDefinitions="Auto,Auto"
                               ColumnDefinitions="Auto,*"
+                              ColumnSpacing="6"
                               RowSpacing="8"
                               Margin="4,6,0,0"
                               HorizontalOptions="Start">
