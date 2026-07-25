@@ -74,9 +74,20 @@ namespace agaverosActividades.Services
         }
 
         /// <summary>
-        /// Decodifica el códec directo al tamaño final reducido (en vez de decodificar a
-        /// resolución completa y luego reescalar), para evitar el pico de memoria de la
-        /// imagen original que puede causar OutOfMemoryException en equipos con poca RAM.
+        /// Decodifica el códec directo al tamaño final reducido cuando el códec lo soporta
+        /// (en vez de decodificar a resolución completa y luego reescalar), para evitar el pico
+        /// de memoria de la imagen original que puede causar OutOfMemoryException en equipos con
+        /// poca RAM.
+        ///
+        /// FIX: no todos los códecs (PNG, HEIC/HEIF de iPhone, algunos WEBP) soportan decodificar
+        /// a CUALQUIER tamaño reducido -- solo a los tamaños "nativos" de escalado que el propio
+        /// códec reporta en GetScaledDimensions(). Antes se le pedía directo el tamaño calculado
+        /// por regla de tres (ancho/alto * escala), y si el códec no soportaba ese tamaño exacto,
+        /// GetPixels regresaba un resultado distinto de Success/IncompleteInput -> se interpretaba
+        /// como "no se pudo decodificar" y tronaba la app (ver DecodificarATamanoSoportado).
+        /// Ahora se pide el tamaño que el códec sí soporta, y si ni así funciona, se cae a
+        /// decodificar a resolución completa; el ajuste al tamaño final exacto se hace después
+        /// con Resize sobre el bitmap ya chico (barato en memoria).
         /// </summary>
         private static SKBitmap? DecodificarRedimensionado(SKCodec codec, int ladoMaximo)
         {
@@ -89,21 +100,79 @@ namespace agaverosActividades.Services
                 1f,
                 (float)ladoMaximo / Math.Max(infoOriginal.Width, infoOriginal.Height));
 
-            int anchoDestino = Math.Max(1, (int)(infoOriginal.Width * escala));
-            int altoDestino = Math.Max(1, (int)(infoOriginal.Height * escala));
+            int anchoDeseado = Math.Max(1, (int)(infoOriginal.Width * escala));
+            int altoDeseado = Math.Max(1, (int)(infoOriginal.Height * escala));
 
-            var infoDestino = new SKImageInfo(anchoDestino, altoDestino, SKColorType.Rgba8888, SKAlphaType.Premul);
-            var bitmap = new SKBitmap(infoDestino);
-
-            var resultado = codec.GetPixels(infoDestino, bitmap.GetPixels());
-
-            if (resultado != SKCodecResult.Success && resultado != SKCodecResult.IncompleteInput)
-            {
-                bitmap.Dispose();
+            using var bitmapDecodificado = DecodificarATamanoSoportado(codec, escala, infoOriginal);
+            if (bitmapDecodificado is null)
                 return null;
+
+            // Si el códec ya entregó justo el tamaño deseado (caso común: JPEG con escalado
+            // nativo), no hace falta reescalar de nuevo.
+            if (bitmapDecodificado.Width == anchoDeseado && bitmapDecodificado.Height == altoDeseado)
+                return bitmapDecodificado.Copy();
+
+            var infoFinal = new SKImageInfo(anchoDeseado, altoDeseado, SKColorType.Rgba8888, SKAlphaType.Premul);
+            var bitmapFinal = new SKBitmap(infoFinal);
+
+            var opcionesMuestreo = new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.None);
+
+            if (!bitmapDecodificado.ScalePixels(bitmapFinal, opcionesMuestreo))
+            {
+                bitmapFinal.Dispose();
+                // Fallback final: si el reescalado in-memory fallara por alguna razón, se
+                // regresa el bitmap ya decodificado (tamaño soportado por el códec) tal cual,
+                // en vez de perder la foto por completo.
+                return bitmapDecodificado.Copy();
             }
 
-            return bitmap;
+            return bitmapFinal;
+        }
+
+        /// <summary>
+        /// Intenta decodificar directo al tamaño "nativo" que el códec reporta como soportado
+        /// para la escala pedida (GetScaledDimensions). Si eso falla (formato sin escalado nativo,
+        /// o el tamaño reportado tampoco es aceptado por GetPixels en este dispositivo/versión),
+        /// cae a decodificar a resolución completa como último recurso antes de dar por perdida
+        /// la imagen.
+        /// </summary>
+        private static SKBitmap? DecodificarATamanoSoportado(SKCodec codec, float escala, SKImageInfo infoOriginal)
+        {
+            SKSizeI tamanoSoportado;
+            try
+            {
+                tamanoSoportado = codec.GetScaledDimensions(escala);
+            }
+            catch (Exception)
+            {
+                tamanoSoportado = new SKSizeI(infoOriginal.Width, infoOriginal.Height);
+            }
+
+            var bitmap = IntentarDecodificar(codec, tamanoSoportado.Width, tamanoSoportado.Height);
+            if (bitmap != null)
+                return bitmap;
+
+            // Ni el tamaño sugerido por el propio códec funcionó -> se intenta a resolución
+            // completa. Si esto también falla, sí es un formato realmente no decodificable.
+            if (tamanoSoportado.Width != infoOriginal.Width || tamanoSoportado.Height != infoOriginal.Height)
+                return IntentarDecodificar(codec, infoOriginal.Width, infoOriginal.Height);
+
+            return null;
+        }
+
+        private static SKBitmap? IntentarDecodificar(SKCodec codec, int ancho, int alto)
+        {
+            if (ancho <= 0 || alto <= 0) return null;
+
+            var info = new SKImageInfo(ancho, alto, SKColorType.Rgba8888, SKAlphaType.Premul);
+            var bitmap = new SKBitmap(info);
+            var resultado = codec.GetPixels(info, bitmap.GetPixels());
+
+            if (resultado == SKCodecResult.Success || resultado == SKCodecResult.IncompleteInput)
+                return bitmap;
+
+            bitmap.Dispose();
+            return null;
         }
     }
 }
