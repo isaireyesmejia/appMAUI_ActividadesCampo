@@ -2,6 +2,7 @@
 using agaverosActividades.Models.Actividades;
 using agaverosActividades.Models.Catalogos;
 using agaverosActividades.Services;
+using agaverosActividades.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -112,6 +113,10 @@ namespace agaverosActividades.ViewModels
     /// PASADA 4: en modo Edición, al cargar el registro existente ahora también se recalcula
     /// la materia prima explotada de cada insumo ya guardado (con la cantidad tal cual está en
     /// servidor), para que "Ver materia prima ›" funcione igual que en Alta.
+    ///
+    /// PASADA 6: el Picker nativo de "Preparación" se reemplaza por SearchablePickerPage
+    /// (selector modal con buscador), ya que el catálogo de Preparaciones puede tener
+    /// cientos de elementos y el Picker nativo no permite filtrar. Ver SeleccionarPreparacion().
     ///
     /// Pendiente todavía:
     /// - Paso 9: bug de binding AncestorType en los botones de eliminar del CollectionView.
@@ -425,6 +430,26 @@ namespace agaverosActividades.ViewModels
             {
                 await Shell.Current.DisplayAlert("Error", "No se pudieron cargar las preparaciones.", "De acuerdo");
             }
+        }
+
+        /// <summary>
+        /// PASADA 6: abre el selector con buscador (SearchablePickerPage) en vez del Picker
+        /// nativo, ya que el catálogo de Preparaciones puede tener cientos de elementos
+        /// (~380 en producción, ver PrecalentarCatalogosAsync) y elegir a mano scrolleando
+        /// una lista tan larga es una mala experiencia. Al elegir, se asigna
+        /// PreparacionSeleccionada normalmente, disparando OnPreparacionSeleccionadaChanged
+        /// igual que si hubiera venido del Picker.
+        /// </summary>
+        [RelayCommand]
+        private async Task SeleccionarPreparacion()
+        {
+            var seleccion = await SearchablePickerPage.MostrarAsync(
+                titulo: "Preparación",
+                items: Preparaciones,
+                textoMostrar: p => $"{p.VchClave} - {p.VchNombreComun}");
+
+            if (seleccion != null)
+                PreparacionSeleccionada = seleccion;
         }
 
         partial void OnPreparacionSeleccionadaChanged(PreparacionModel value)

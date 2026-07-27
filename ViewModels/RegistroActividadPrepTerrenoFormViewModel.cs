@@ -274,7 +274,22 @@ namespace agaverosActividades.ViewModels
             EquipoSeleccionado = null;
             CantidadEquipo = "1";
         }
+        /// <summary>Abre el selector con buscador para Equipo, igual que SeleccionarPreparacion en
+        /// RegistroActividadFormViewModel. No hace nada si EquipoHabilitado es false (el campo solo
+        /// aplica cuando la cuadrilla es "Tractor"), mismo comportamiento que tenía el Picker deshabilitado.</summary>
+        [RelayCommand]
+        private async Task SeleccionarEquipo()
+        {
+            if (!EquipoHabilitado) return;
 
+            var seleccion = await agaverosActividades.Views.SearchablePickerPage.MostrarAsync(
+                titulo: "Equipo",
+                items: Equipos,
+                textoMostrar: e => e.VchNombreConCodigo);
+
+            if (seleccion != null)
+                EquipoSeleccionado = seleccion;
+        }
         // ===================== ESTATUS (En Proceso / Terminado) =====================
 
         [ObservableProperty] private bool enProceso;

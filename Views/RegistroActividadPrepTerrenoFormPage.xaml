@@ -371,12 +371,19 @@
 
                             <Label Text="Equipo" Style="{StaticResource EtiquetaSeccion}" />
                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <!-- DESPUÉS -->
                                 <Border Grid.Column="0" Style="{StaticResource CampoBorder}"
-                                    BackgroundColor="{Binding EquipoHabilitado, Converter={StaticResource BoolToFrameColorConverter}}">
-                                    <Picker ItemsSource="{Binding Equipos}"
-                                        ItemDisplayBinding="{Binding VchNombreConCodigo}"
-                                        SelectedItem="{Binding EquipoSeleccionado}"
-                                        IsEnabled="{Binding EquipoHabilitado}" />
+    BackgroundColor="{Binding EquipoHabilitado, Converter={StaticResource BoolToFrameColorConverter}}">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding SeleccionarEquipoCommand}" />
+                                        </Grid.GestureRecognizers>
+                                        <Label Grid.Column="0" FontSize="13" VerticalOptions="Center" LineBreakMode="TailTruncation"
+               Text="{Binding EquipoSeleccionado.VchNombreConCodigo, TargetNullValue='Selecciona un equipo'}" />
+                                        <Label Grid.Column="1" Text="›" FontSize="18" VerticalOptions="Center"
+               TextColor="{StaticResource ColorPrimario}" Margin="8,0,0,0"
+               IsVisible="{Binding EquipoHabilitado}" />
+                                    </Grid>
                                 </Border>
 
                                 <!-- ✕ Limpiar selección de Equipo (visible solo si hay algo seleccionado) -->

@@ -110,6 +110,9 @@
 		<MauiXaml Update="Views\RegistroActividadPrepTerrenoFormPage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		<MauiXaml Update="Views\SearchablePickerPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="Views\VerImagenPage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>

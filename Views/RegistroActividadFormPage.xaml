@@ -316,11 +316,21 @@
                         <VerticalStackLayout Spacing="4">
                             <Label Text="Insumos" Style="{StaticResource TituloSeccion}" Margin="0,0,0,6" />
 
+                            <!-- ===== PASADA 6: reemplaza el Picker nativo (lista larga, sin buscador,
+                                 mala experiencia con ~380 preparaciones) por SearchablePickerPage,
+                                 abierto vía SeleccionarPreparacionCommand. ===== -->
                             <Label Text="Preparación" Style="{StaticResource EtiquetaSeccion}" />
                             <Border Style="{StaticResource CampoBorder}">
-                                <Picker ItemsSource="{Binding Preparaciones}"
-                                        ItemDisplayBinding="{Binding VchNombreComun}"
-                                        SelectedItem="{Binding PreparacionSeleccionada}" />
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SeleccionarPreparacionCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Label Grid.Column="0" FontSize="13" VerticalOptions="Center"
+                                           LineBreakMode="TailTruncation"
+                                           Text="{Binding PreparacionSeleccionada.VchNombreComun, TargetNullValue='Selecciona una preparación'}" />
+                                    <Label Grid.Column="1" Text="›" FontSize="20" VerticalOptions="Center"
+                                           TextColor="{StaticResource ColorPrimario}" Margin="8,0,0,0" />
+                                </Grid>
                             </Border>
 
                             <Label Text="{Binding LblPreparacionSeleccionada}" FontSize="12"

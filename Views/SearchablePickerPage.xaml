@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:agaverosActividades.Models"
+             xmlns:controls="clr-namespace:agaverosActividades.Controls"
+             x:Class="agaverosActividades.Views.SearchablePickerPage"
+             BackgroundColor="{AppThemeBinding Light=White, Dark=#121212}"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- Reutiliza el mismo header que el resto de la app -->
+        <controls:AppHeaderView Grid.Row="0"
+                                 Titulo="{Binding Titulo}"
+                                 MostrarBotonAtras="True"
+                                 ComandoAtras="{Binding ComandoCancelar}" />
+
+        <!-- Buscador -->
+        <Border Grid.Row="1" Margin="16,10,16,4" StrokeShape="RoundRectangle 10"
+                Stroke="{AppThemeBinding Light=Black, Dark=#555555}" Padding="12,2">
+            <Grid ColumnDefinitions="Auto,*">
+                <Label Grid.Column="0" Text="&#128269;" VerticalOptions="Center" Margin="0,0,8,0" />
+                <Entry Grid.Column="1" x:Name="EntryBusqueda" Placeholder="Buscar..."
+                       TextChanged="EntryBusqueda_TextChanged" />
+            </Grid>
+        </Border>
+
+        <!-- Lista filtrada -->
+        <CollectionView Grid.Row="2" ItemsSource="{Binding OpcionesFiltradas}" Margin="0,4,0,0">
+            <CollectionView.EmptyView>
+                <Label Text="Sin resultados" HorizontalOptions="Center" Margin="0,24,0,0"
+                       TextColor="{AppThemeBinding Light=Gray, Dark=#AAAAAA}" />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:SearchablePickerItem">
+                    <Grid Padding="16,14" ColumnDefinitions="*">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Opcion_Tapped" CommandParameter="{Binding .}" />
+                        </Grid.GestureRecognizers>
+                        <Label Text="{Binding Texto}" FontSize="14" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>
