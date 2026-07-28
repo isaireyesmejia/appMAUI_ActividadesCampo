@@ -18,7 +18,6 @@ namespace agaverosActividades.ViewModels
     /// Es un modelo de UI (no viaja al API tal cual) que junto con IntAGRActividadLink
     /// permite construir el InsumoUtilizadoModel real al presionar Guardar.
     /// </summary>
-    /// 
     public enum MovimientoItem
     {
         Nada = 0,
@@ -50,11 +49,11 @@ namespace agaverosActividades.ViewModels
         private bool esReceta;
 
         /// <summary>
-        /// PASO 7: si el usuario modifica la cantidad de un insumo que ya existía en el
-        /// servidor (Movimiento == Nada, cargado desde CargarRegistroExistenteAsync),
-        /// se marca automáticamente como Actualizar para que Guardar() lo mande con el
-        /// IntMovimiento correcto. Si ya estaba marcado como Agregar (item nuevo de esta
-        /// sesión) o Eliminar, no se toca: un insumo nuevo se sigue mandando como Agregar.
+        /// Si el usuario modifica la cantidad de un insumo que ya existía en el servidor
+        /// (Movimiento == Nada, cargado desde CargarRegistroExistenteAsync), se marca
+        /// automáticamente como Actualizar para que Guardar() lo mande con el IntMovimiento
+        /// correcto. Si ya estaba marcado como Agregar (item nuevo de esta sesión) o Eliminar,
+        /// no se toca.
         /// </summary>
         partial void OnCantidadChanged(decimal value)
         {
@@ -93,7 +92,7 @@ namespace agaverosActividades.ViewModels
         [ObservableProperty]
         private decimal cantidad;
 
-        /// <summary>PASO 7: mismo criterio que en InsumoAgregadoItem.OnCantidadChanged.</summary>
+        /// <summary>Mismo criterio que InsumoAgregadoItem.OnCantidadChanged.</summary>
         partial void OnCantidadChanged(decimal value)
         {
             if (Movimiento == MovimientoItem.Nada)
@@ -106,21 +105,9 @@ namespace agaverosActividades.ViewModels
     /// (RegistroActividadFormPage). Se navega en modo Alta con idPredio/idZona/idMunicipio,
     /// o en modo Editar con idActividad (ver RegistroActividadesViewModel.AgregarAsync/EditarAsync).
     ///
-    /// PASADA 3: se implementa el guardado en modo Edición (Guardar() bifurcado en
-    /// GuardarAltaAsync/GuardarEdicionAsync), incluyendo marcado de insumos/implementos
-    /// eliminados (Movimiento = Eliminar) y actualizados (Movimiento = Actualizar).
-    ///
-    /// PASADA 4: en modo Edición, al cargar el registro existente ahora también se recalcula
-    /// la materia prima explotada de cada insumo ya guardado (con la cantidad tal cual está en
-    /// servidor), para que "Ver materia prima ›" funcione igual que en Alta.
-    ///
-    /// PASADA 6: el Picker nativo de "Preparación" se reemplaza por SearchablePickerPage
-    /// (selector modal con buscador), ya que el catálogo de Preparaciones puede tener
-    /// cientos de elementos y el Picker nativo no permite filtrar. Ver SeleccionarPreparacion().
-    ///
-    /// Pendiente todavía:
-    /// - Paso 9: bug de binding AncestorType en los botones de eliminar del CollectionView.
-    /// - Fallback Offline (SQLite), se agrega al final del proyecto.
+    /// Los combos de Preparación, Unidad, Jefe de Cuadrilla y Equipo usan SearchablePickerPage
+    /// (selector modal con buscador) en vez del Picker nativo, ya que sus catálogos pueden tener
+    /// muchos elementos (Preparaciones ~380 en producción) y el Picker nativo no permite filtrar.
     /// </summary>
     [QueryProperty(nameof(PredioId), "idPredio")]
     [QueryProperty(nameof(ZonaId), "idZona")]
@@ -137,20 +124,18 @@ namespace agaverosActividades.ViewModels
         private RegistroActividadModel? _registroActividadOriginal;
 
         /// <summary>
-        /// PASO 8: key real de AGRActividadRealizada en el servidor, capturada en
+        /// Key real de AGRActividadRealizada en el servidor, capturada en
         /// CargarRegistroExistenteAsync. Se necesita en GuardarEdicionAsync para mandar
         /// IntMovimiento = Actualizar con la key correcta (si se manda 0, el backend
         /// generaría un registro de actividad realizada nuevo en vez de actualizar el existente).
-        /// AJUSTAR el nombre de la propiedad si el modelo devuelto por
-        /// ObtenerActividadRealizadaAsync usa otro nombre de campo para esta key.
         /// </summary>
         private int _actividadRealizadaKeyOriginal;
 
-        /// <summary>PASO 7: insumos existentes en servidor marcados para eliminar (Movimiento = Eliminar),
+        /// <summary>Insumos existentes en servidor marcados para eliminar (Movimiento = Eliminar),
         /// removidos de la UI (InsumosAgregados) pero conservados aquí para que Guardar() los mande.</summary>
         private readonly List<InsumoAgregadoItem> _insumosEliminados = new();
 
-        /// <summary>PASO 7: mismo propósito que _insumosEliminados, para implementos.</summary>
+        /// <summary>Mismo propósito que _insumosEliminados, para implementos.</summary>
         private readonly List<ImplementoAgregadoItem> _implementosEliminados = new();
 
         public void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -240,6 +225,19 @@ namespace agaverosActividades.ViewModels
         [ObservableProperty]
         private VehiculoActividadModel vehiculoSeleccionado;
 
+        /// <summary>Abre el selector con buscador para Unidad.</summary>
+        [RelayCommand]
+        private async Task SeleccionarUnidad()
+        {
+            var seleccion = await SearchablePickerPage.MostrarAsync(
+                titulo: "Unidad",
+                items: Vehiculos,
+                textoMostrar: v => v.VchNombreCompleto);
+
+            if (seleccion != null)
+                VehiculoSeleccionado = seleccion;
+        }
+
         [ObservableProperty]
         private ObservableCollection<TractorCuadrillaModel> tractoresCuadrillas = new();
 
@@ -271,6 +269,19 @@ namespace agaverosActividades.ViewModels
 
         [ObservableProperty]
         private JefeCuadrillaModel jefeCuadrillaSeleccionado;
+
+        /// <summary>Abre el selector con buscador para Jefe de Cuadrilla.</summary>
+        [RelayCommand]
+        private async Task SeleccionarJefeCuadrilla()
+        {
+            var seleccion = await SearchablePickerPage.MostrarAsync(
+                titulo: "Jefe de Cuadrilla",
+                items: JefesCuadrilla,
+                textoMostrar: j => j.VchNombre);
+
+            if (seleccion != null)
+                JefeCuadrillaSeleccionado = seleccion;
+        }
 
         // ===================== TIPO DE CUADRILLA (Interno/Externo) =====================
 
@@ -308,7 +319,7 @@ namespace agaverosActividades.ViewModels
 
         partial void OnProveedorSeleccionadoChanged(ProveedorModel value)
         {
-            // Igual que en Xamarin: si se elige un proveedor, se marca automáticamente "Externo".
+            // Si se elige un proveedor, se marca automáticamente "Externo".
             if (value != null && !EsExterno)
             {
                 MarcarExterno();
@@ -432,14 +443,7 @@ namespace agaverosActividades.ViewModels
             }
         }
 
-        /// <summary>
-        /// PASADA 6: abre el selector con buscador (SearchablePickerPage) en vez del Picker
-        /// nativo, ya que el catálogo de Preparaciones puede tener cientos de elementos
-        /// (~380 en producción, ver PrecalentarCatalogosAsync) y elegir a mano scrolleando
-        /// una lista tan larga es una mala experiencia. Al elegir, se asigna
-        /// PreparacionSeleccionada normalmente, disparando OnPreparacionSeleccionadaChanged
-        /// igual que si hubiera venido del Picker.
-        /// </summary>
+        /// <summary>Abre el selector con buscador para Preparación.</summary>
         [RelayCommand]
         private async Task SeleccionarPreparacion()
         {
@@ -484,6 +488,19 @@ namespace agaverosActividades.ViewModels
         [ObservableProperty]
         private UnidadEquipoModel unidadEquipoSeleccionada;
 
+        /// <summary>Abre el selector con buscador para Equipo.</summary>
+        [RelayCommand]
+        private async Task SeleccionarEquipo()
+        {
+            var seleccion = await SearchablePickerPage.MostrarAsync(
+                titulo: "Equipo",
+                items: Equipos,
+                textoMostrar: e => e.VchNombreConCodigo);
+
+            if (seleccion != null)
+                EquipoSeleccionado = seleccion;
+        }
+
         // ===================== LISTAS DE TRABAJO (lo agregado en pantalla, pendiente de guardar) =====================
 
         [ObservableProperty]
@@ -495,9 +512,9 @@ namespace agaverosActividades.ViewModels
         private ObservableCollection<ImplementoAgregadoItem> implementosAgregados = new();
 
         /// <summary>
-        /// PASO 7: si el insumo ya existe en el servidor (Key > 0), no se borra de verdad:
-        /// se marca Movimiento = Eliminar, se quita de la UI (InsumosAgregados) y se conserva
-        /// en _insumosEliminados para que Guardar() (modo Edición) lo mande al backend con ese
+        /// Si el insumo ya existe en el servidor (Key > 0), no se borra de verdad: se marca
+        /// Movimiento = Eliminar, se quita de la UI (InsumosAgregados) y se conserva en
+        /// _insumosEliminados para que Guardar() (modo Edición) lo mande al backend con ese
         /// movimiento. Si es un insumo agregado en esta misma sesión (Key == 0, nunca existió
         /// en servidor), se elimina directamente sin dejar rastro.
         /// </summary>
@@ -522,7 +539,7 @@ namespace agaverosActividades.ViewModels
                 MateriaPrimaAgregada.Remove(mp);
         }
 
-        /// <summary>PASO 7: mismo criterio que QuitarInsumo, para implementos/equipos.</summary>
+        /// <summary>Mismo criterio que QuitarInsumo, para implementos/equipos.</summary>
         [RelayCommand]
         private void QuitarImplemento(ImplementoAgregadoItem item)
         {
@@ -610,11 +627,10 @@ namespace agaverosActividades.ViewModels
 
 
         /// <summary>
-        /// PASADA 4: variante silenciosa de RecalcularMateriaPrimaAsync, usada exclusivamente al
-        /// cargar un registro existente (CargarRegistroExistenteAsync). No muestra DisplayAlert si
-        /// falla la llamada al backend, para no interrumpir la carga inicial de la pantalla con un
-        /// insumo por insumo; en su lugar simplemente deja EsReceta = false para ese insumo (el
-        /// usuario no verá el link "Ver materia prima ›" pero el resto del formulario carga normal).
+        /// Variante silenciosa de RecalcularMateriaPrimaAsync, usada exclusivamente al cargar un
+        /// registro existente (CargarRegistroExistenteAsync). No muestra DisplayAlert si falla la
+        /// llamada al backend, para no interrumpir la carga inicial de la pantalla con un insumo
+        /// por insumo; en su lugar simplemente deja EsReceta = false para ese insumo.
         /// </summary>
         private async Task RecalcularMateriaPrimaSilenciosoAsync(InsumoAgregadoItem insumoItem, int actividadKey, decimal cantidadTotalInsumo, decimal dosisReceta)
         {
@@ -632,7 +648,6 @@ namespace agaverosActividades.ViewModels
                     $"DetalleInsumo_{mastInsumoKey}",
                     ct => _actividadService.ObtenerDetalleInsumoAsync(mastInsumoKey, ct));
                 var racionAplicada = cantidadTotalInsumo / dosisReceta;
-                // ... resto igual
 
                 foreach (var mp in detalle)
                 {
@@ -687,16 +702,15 @@ namespace agaverosActividades.ViewModels
         private string? imagenNombre;
 
         /// <summary>
-        /// PASADA 5: referencia (URL/ruta) de la imagen tal cual venía del servidor al entrar en
-        /// modo Edición (CargarRegistroExistenteAsync). Se usa en GuardarEdicionAsync para saber
-        /// si el usuario dejó la imagen intacta (en cuyo caso se reenvía esta misma referencia sin
-        /// volver a subir nada) o la reemplazó por una nueva (ahí sí se sube). Queda en null en
-        /// modo Alta, donde no aplica.
+        /// Referencia (URL/ruta) de la imagen tal cual venía del servidor al entrar en modo
+        /// Edición (CargarRegistroExistenteAsync). Se usa en GuardarEdicionAsync para saber si el
+        /// usuario dejó la imagen intacta (en cuyo caso se reenvía esta misma referencia sin volver
+        /// a subir nada) o la reemplazó por una nueva (ahí sí se sube). Queda en null en modo Alta.
         /// </summary>
         private string? _rutaArchivoImagenOriginal;
         private string? _nombreImagenOriginal;
 
-        /// <summary>PASADA 5: true si path es una URL absoluta http/https (imagen ya guardada en servidor).</summary>
+        /// <summary>True si path es una URL absoluta http/https (imagen ya guardada en servidor).</summary>
         private static bool EsImagenRemota(string? path) =>
             !string.IsNullOrEmpty(path) &&
             Uri.TryCreate(path, UriKind.Absolute, out var uri) &&
@@ -925,10 +939,8 @@ namespace agaverosActividades.ViewModels
         }
 
         /// <summary>
-        /// PASO 8: punto de entrada único de guardado. Hace las validaciones comunes a
-        /// Alta y Edición, y luego bifurca según EsEdicion. Antes, este método siempre
-        /// llamaba al flujo de Alta (AltaRegistroActividadAsync), por lo que editar y
-        /// guardar terminaba creando un registro nuevo en vez de actualizar el existente.
+        /// Punto de entrada único de guardado. Hace las validaciones comunes a Alta y Edición,
+        /// y luego bifurca según EsEdicion.
         /// </summary>
         [RelayCommand]
         private async Task Guardar()
@@ -963,7 +975,7 @@ namespace agaverosActividades.ViewModels
                 return;
             }
 
-            // Igual que en Xamarin: si no es "Solo Actividad", se requiere al menos un insumo agregado.
+            // Si no es "Solo Actividad", se requiere al menos un insumo agregado.
             if (!SoloActividad && InsumosAgregados.Count == 0)
             {
                 await Shell.Current.DisplayAlert("Advertencia", "Es necesario agregar una materia prima (botón Agregar).", "De acuerdo");
@@ -995,7 +1007,6 @@ namespace agaverosActividades.ViewModels
 
         private async Task GuardarAltaAsync(decimal cantidadActividad)
         {
-            // ── Paso 1: armar el encabezado (igual que antes, pero ya NO se envía aquí) ──
             var altaModelo = new AltaRegistroActividadModel
             {
                 IntGENUnidadParaActividadLink = VehiculoSeleccionado.IntGENUnidadParaActividadKey,
@@ -1018,8 +1029,6 @@ namespace agaverosActividades.ViewModels
                 VchCodigoUnidad = string.Empty
             };
 
-            // ── Paso 2: armar la actividad realizada (sin registroActividadKey todavía;
-            //    LocalDataService lo llena internamente al ejecutar el payload) ──────
             var horasProductivas = (ProduccionFinal - ProduccionInicial).ToString(@"hh\:mm");
 
             var actividadModelo = new ActividadRealizadaModel
@@ -1041,7 +1050,6 @@ namespace agaverosActividades.ViewModels
                 VchUsuario = _sesionApp.Login
             };
 
-            // ── Paso 3: armar insumos/implementos/materia prima (sin registroActividadKey aún) ──
             var insumosDto = InsumosAgregados.Select(insumo => new InsumoUtilizadoModel
             {
                 IntMovimiento = 1,
@@ -1078,7 +1086,6 @@ namespace agaverosActividades.ViewModels
                 VchUsuario = _sesionApp.Login
             }).ToList();
 
-            // ── Paso 4: armar el payload completo y delegarlo a ILocalDataService ──────
             var payload = new GuardarRegistroActividadPayload
             {
                 Descripcion = $"{ActividadSeleccionada.VchDescripcion} - {PredioSeleccionado.VchNombre} - {Fecha:dd/MM/yyyy}",
@@ -1110,7 +1117,6 @@ namespace agaverosActividades.ViewModels
 
         private async Task GuardarEdicionAsync(decimal cantidadActividad)
         {
-            // ── Paso 1: armar el encabezado a actualizar (igual que antes) ──────────────
             var actualizarModelo = new ActualizarRegistroActividadModel
             {
                 IntAGRRegistroActividadKey = ActividadId,
@@ -1131,8 +1137,7 @@ namespace agaverosActividades.ViewModels
                 IntGENProveedorLink = ProveedorSeleccionado?.IntGENProveedorKey
             };
 
-            // ── Paso 2: resolver qué pasa con la imagen (misma lógica de 3 casos de antes,
-            //    pero en vez de subir aquí, solo se decide QUÉ referencia mandar al payload) ──
+            // Resolver qué pasa con la imagen: 3 casos.
             string? imagenPathLocal = null;
             string? imagenUrlRemotaSinCambios = null;
 
@@ -1151,7 +1156,6 @@ namespace agaverosActividades.ViewModels
                 imagenPathLocal = ImagenPath;
             }
 
-            // ── Paso 3: armar la actividad realizada (Actualizar, con la key existente) ──
             var horasProductivas = (ProduccionFinal - ProduccionInicial).ToString(@"hh\:mm");
 
             var actividadModelo = new ActividadRealizadaModel
@@ -1173,7 +1177,6 @@ namespace agaverosActividades.ViewModels
                 VchUsuario = _sesionApp.Login
             };
 
-            // ── Paso 4 (+ Paso 7 original): Insumos — Agregar / Actualizar / Eliminar ──
             var todosInsumos = InsumosAgregados
                 .Concat(_insumosEliminados)
                 .Where(i => i.Movimiento != MovimientoItem.Nada)
@@ -1190,7 +1193,6 @@ namespace agaverosActividades.ViewModels
                     VchUsuario = _sesionApp.Login
                 }).ToList();
 
-            // ── Paso 5 (+ Paso 7 original): Implementos — Agregar / Actualizar / Eliminar ──
             var todosImplementos = ImplementosAgregados
                 .Concat(_implementosEliminados)
                 .Where(i => i.Movimiento != MovimientoItem.Nada)
@@ -1204,7 +1206,6 @@ namespace agaverosActividades.ViewModels
                     VchUsuario = _sesionApp.Login
                 }).ToList();
 
-            // ── Paso 6: Materia prima explotada ──────────────────────────
             var materiaPrimaDto = MateriaPrimaAgregada.Select(materiaPrima => new MateriaPrimaUtilizadoModel
             {
                 IntMovimiento = MateriaPrimaUtilizadoModel.MovimientoMP.Agregar,
@@ -1218,7 +1219,6 @@ namespace agaverosActividades.ViewModels
                 VchUsuario = _sesionApp.Login
             }).ToList();
 
-            // ── Paso 7: armar el payload completo y delegarlo a ILocalDataService ──────
             var payload = new GuardarRegistroActividadPayload
             {
                 Descripcion = $"Editar: {ActividadSeleccionada.VchDescripcion} - {PredioSeleccionado.VchNombre} - {Fecha:dd/MM/yyyy}",
@@ -1266,7 +1266,7 @@ namespace agaverosActividades.ViewModels
         [RelayCommand]
         private async Task VerDetalle()
         {
-            // TODO (pasada 2): navegar a ActividadesRegistradas.
+            // TODO: navegar a ActividadesRegistradas.
         }
 
         // ===================== INICIALIZACIÓN =====================
@@ -1280,7 +1280,7 @@ namespace agaverosActividades.ViewModels
 
         /// <summary>
         /// Distingue "sin conexión y sin copia en caché" de un error real de programación/backend,
-        /// para mostrar mensajes distintos al usuario. Misma lógica que ya se usa en InicializarAsync.
+        /// para mostrar mensajes distintos al usuario.
         /// </summary>
         private static bool EsFallaSinCache(Exception ex) =>
             ex is HttpRequestException || ex.InnerException is System.Net.Sockets.SocketException;
@@ -1338,21 +1338,15 @@ namespace agaverosActividades.ViewModels
                 else
                 {
                     PredioSeleccionado = Predios.FirstOrDefault(p => p.IntGENPredioKey == PredioId);
-                    MarcarInterno(); // <-- default: Interno seleccionado al dar de Alta
+                    MarcarInterno(); // default: Interno seleccionado al dar de Alta
                 }
 
                 // Fire-and-forget: precalienta subactividades y detalle de materia prima en
                 // segundo plano, sin bloquear al usuario ni el resto de InicializarAsync.
-                // Solo se dispara si llegamos hasta aquí, es decir, hubo conexión y los
-                // catálogos base ya se cargaron correctamente.
                 _ = PrecalentarCatalogosAsync();
             }
             catch (Exception ex)
             {
-                // Sin conexión Y sin copia local de los catálogos: no hay nada que mostrar en
-                // el formulario (pasa la primera vez que se abre esta pantalla sin haber
-                // tenido internet antes). Se distingue de un error real de programación con
-                // un mensaje claro y se regresa, en vez de dejar el formulario a medio cargar.
                 bool sinDatosLocales = ex is HttpRequestException
                     || ex.InnerException is System.Net.Sockets.SocketException;
 
@@ -1384,7 +1378,6 @@ namespace agaverosActividades.ViewModels
 
             var reg = _registroActividadOriginal;
 
-            // ── Encabezado: se resuelve contra los catálogos ya cargados arriba en InicializarAsync ──
             Id = reg.VchID;
             Fecha = reg.DtmFecha;
             Observaciones = reg.VchObservacionActividad;
@@ -1393,8 +1386,7 @@ namespace agaverosActividades.ViewModels
             ProduccionInicial = TimeSpan.TryParse(reg.VchHrsProductivasInicial, out var pi) ? pi : TimeSpan.Zero;
             ProduccionFinal = TimeSpan.TryParse(reg.VchHrsProductivasFinal, out var pf) ? pf : TimeSpan.Zero;
 
-            // Imagen existente (si la hay). VchNombreImagen ya trae la URL completa desde el backend
-            // (mismo patrón que el Xamarin viejo en RegistroActividades.Editar()).
+            // Imagen existente (si la hay). VchNombreImagen ya trae la URL completa desde el backend.
             if (!string.IsNullOrEmpty(reg.VchNombreImagen))
             {
                 ImagenPath = reg.VchNombreImagen;
@@ -1418,15 +1410,11 @@ namespace agaverosActividades.ViewModels
             else
                 MarcarExterno();
 
-            // ── Detalle: actividad realizada + insumos + implementos (los 3 GETs del paso 3) ──
             try
             {
                 var actividadRealizada = await _actividadService.ObtenerActividadRealizadaAsync(reg.IntAGRRegistroActividadKey);
                 if (actividadRealizada != null)
                 {
-                    // PASO 8: se guarda la key real de AGRActividadRealizada para poder mandar
-                    // IntMovimiento = Actualizar con la key correcta en GuardarEdicionAsync.
-                    // AJUSTAR el nombre de la propiedad si el modelo usa otro nombre de campo.
                     _actividadRealizadaKeyOriginal = actividadRealizada.IntAGRActividadRealizadaKey;
 
                     ActividadSeleccionada = Actividades.FirstOrDefault(a => a.IntAGRActividadKey == actividadRealizada.IntAGRActividadLink);
@@ -1463,14 +1451,13 @@ namespace agaverosActividades.ViewModels
                     NoValeSalidaHabilitado = false;
                 }
 
-                // PASADA 4: recalcular/explotar la materia prima de cada insumo ya guardado,
-                // usando la Cantidad tal cual quedó registrada en servidor (no se pide de nuevo
-                // al usuario). Esto habilita "Ver materia prima ›" también en modo Edición,
-                // igual que ya funciona al Agregar() un insumo nuevo en modo Alta.
-                // Se busca la PreparacionModel correspondiente por IntAGRMastInsumoKey para
-                // obtener su DecDosis (necesaria para la ración); si un insumo no tiene match
-                // en el catálogo de Preparaciones (p. ej. insumo dado de baja del catálogo),
-                // simplemente se deja sin materia prima calculada (EsReceta = false).
+                // Recalcula/explota la materia prima de cada insumo ya guardado, usando la Cantidad
+                // tal cual quedó registrada en servidor (no se pide de nuevo al usuario). Esto
+                // habilita "Ver materia prima ›" también en modo Edición. Se busca la
+                // PreparacionModel correspondiente por IntAGRMastInsumoKey para obtener su DecDosis
+                // (necesaria para la ración); si un insumo no tiene match en el catálogo de
+                // Preparaciones (p. ej. insumo dado de baja del catálogo), se deja sin materia
+                // prima calculada (EsReceta = false).
                 foreach (var insumoItem in InsumosAgregados)
                 {
                     var preparacionRelacionada = Preparaciones
@@ -1518,8 +1505,8 @@ namespace agaverosActividades.ViewModels
         /// concurrencia (SemaphoreSlim) porque Preparaciones puede tener cientos de elementos
         /// (~380 en producción) y lanzar todas las llamadas a la vez saturaría el servidor.
         ///
-        /// Solo corre una vez por día (ver ClavePreferenciaUltimoPrecalentado) para no repetir
-        /// cientos de llamadas HTTP innecesarias cada vez que el usuario abre el formulario.
+        /// Solo corre una vez por día para no repetir cientos de llamadas HTTP innecesarias cada
+        /// vez que el usuario abre el formulario.
         /// </summary>
         private async Task PrecalentarCatalogosAsync()
         {

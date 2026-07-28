@@ -175,12 +175,20 @@
                             </Grid>
 
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <!-- ===== Unidad: selector con buscador (antes Picker nativo) ===== -->
                                 <VerticalStackLayout Grid.Column="0">
                                     <Label Text="Unidad" Style="{StaticResource EtiquetaSeccion}" />
-                                    <Border Style="{StaticResource CampoBorder}">
-                                        <Picker ItemsSource="{Binding Vehiculos}"
-                                                ItemDisplayBinding="{Binding VchNombreCompleto}"
-                                                SelectedItem="{Binding VehiculoSeleccionado}" />
+                                    <Border Style="{StaticResource CampoBorder}" HeightRequest="44" VerticalOptions="Center">
+                                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Fill">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SeleccionarUnidadCommand}" />
+                                            </Grid.GestureRecognizers>
+                                            <Label Grid.Column="0" FontSize="13" VerticalOptions="Center"
+                                                   LineBreakMode="TailTruncation"
+                                                   Text="{Binding VehiculoSeleccionado.VchNombreCompleto, TargetNullValue='Selecciona una unidad'}" />
+                                            <Label Grid.Column="1" Text="›" FontSize="20" VerticalOptions="Center"
+                                                   TextColor="{StaticResource ColorPrimario}" Margin="8,0,0,0" />
+                                        </Grid>
                                     </Border>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="1">
@@ -203,12 +211,20 @@
                                                 SelectedItem="{Binding TractorCuadrillaSeleccionado}" />
                                     </Border>
                                 </VerticalStackLayout>
+                                <!-- ===== Jefe de Cuadrilla: selector con buscador (antes Picker nativo) ===== -->
                                 <VerticalStackLayout Grid.Column="1">
                                     <Label Text="Jefe de Cuadrilla" Style="{StaticResource EtiquetaSeccion}" />
-                                    <Border Style="{StaticResource CampoBorder}">
-                                        <Picker ItemsSource="{Binding JefesCuadrilla}"
-                                                ItemDisplayBinding="{Binding VchNombre}"
-                                                SelectedItem="{Binding JefeCuadrillaSeleccionado}" />
+                                    <Border Style="{StaticResource CampoBorder}" HeightRequest="44" VerticalOptions="Center">
+                                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Fill">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding SeleccionarJefeCuadrillaCommand}" />
+                                            </Grid.GestureRecognizers>
+                                            <Label Grid.Column="0" FontSize="13" VerticalOptions="Center"
+                                                   LineBreakMode="TailTruncation"
+                                                   Text="{Binding JefeCuadrillaSeleccionado.VchNombre, TargetNullValue='Selecciona un jefe de cuadrilla'}" />
+                                            <Label Grid.Column="1" Text="›" FontSize="20" VerticalOptions="Center"
+                                                   TextColor="{StaticResource ColorPrimario}" Margin="8,0,0,0" />
+                                        </Grid>
                                     </Border>
                                 </VerticalStackLayout>
                             </Grid>

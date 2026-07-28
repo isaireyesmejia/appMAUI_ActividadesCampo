@@ -29,6 +29,9 @@ namespace agaverosActividades.ViewModels
     ///   Agregar / Actualizar / Eliminar según lo que el usuario deje, cambie o quite.
     /// - Se agregan Horas Productivas / Horas Muertas / Horas PD, Operador de Maquinaria y Código de Unidad.
     /// - Se agrega Estatus (En Proceso / Terminado), obligatorio para guardar.
+    /// - Unidad y Jefe de Cuadrilla usan SearchablePickerPage (selector modal con buscador) en vez
+    ///   del Picker nativo, mismo patrón que Equipo (SeleccionarEquipo) y que en
+    ///   RegistroActividadFormViewModel (el form general).
     ///
     /// MODO EDICIÓN (agregado): replica el mismo patrón de RegistroActividadFormViewModel
     /// (IQueryAttributable + _registroActividadOriginal + bifurcación Alta/Edición en Guardar()).
@@ -123,6 +126,20 @@ namespace agaverosActividades.ViewModels
         [ObservableProperty] private ObservableCollection<VehiculoActividadModel> vehiculos = new();
         [ObservableProperty] private VehiculoActividadModel vehiculoSeleccionado;
 
+        /// <summary>Abre el selector con buscador para Unidad, mismo patrón que SeleccionarEquipo
+        /// y que RegistroActividadFormViewModel.SeleccionarUnidad (el form general).</summary>
+        [RelayCommand]
+        private async Task SeleccionarUnidad()
+        {
+            var seleccion = await agaverosActividades.Views.SearchablePickerPage.MostrarAsync(
+                titulo: "Unidad",
+                items: Vehiculos,
+                textoMostrar: v => v.VchNombreCompleto);
+
+            if (seleccion != null)
+                VehiculoSeleccionado = seleccion;
+        }
+
         [ObservableProperty] private ObservableCollection<TractorCuadrillaModel> tractoresCuadrillas = new();
         [ObservableProperty] private TractorCuadrillaModel tractorCuadrillaSeleccionado;
 
@@ -157,6 +174,20 @@ namespace agaverosActividades.ViewModels
 
         [ObservableProperty] private ObservableCollection<JefeCuadrillaModel> jefesCuadrilla = new();
         [ObservableProperty] private JefeCuadrillaModel jefeCuadrillaSeleccionado;
+
+        /// <summary>Abre el selector con buscador para Jefe de Cuadrilla, mismo patrón que
+        /// RegistroActividadFormViewModel.SeleccionarJefeCuadrilla (el form general).</summary>
+        [RelayCommand]
+        private async Task SeleccionarJefeCuadrilla()
+        {
+            var seleccion = await agaverosActividades.Views.SearchablePickerPage.MostrarAsync(
+                titulo: "Jefe de Cuadrilla",
+                items: JefesCuadrilla,
+                textoMostrar: j => j.VchNombre);
+
+            if (seleccion != null)
+                JefeCuadrillaSeleccionado = seleccion;
+        }
 
         // ===================== TIPO DE CUADRILLA (Interno/Externo) =====================
 

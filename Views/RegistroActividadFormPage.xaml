@@ -108,11 +108,6 @@
     <Grid RowDefinitions="Auto,*">
 
         <!-- ===================== HEADER UNIFICADO ===================== -->
-        <!-- PASO 10 (uniformar encabezados): reemplaza el bloque manual de
-             logo/usuario/perfil/fecha + título/Guardar/Cerrar que vivía aquí, por el
-             componente reusable AppHeaderView (mismo header en todas las páginas de la app).
-             Se saca del ScrollView para que quede fijo arriba, en vez de scrollear con el
-             contenido — comportamiento más estándar para un header de página. -->
         <controls:AppHeaderView Grid.Row="0"
                                  Titulo="{Binding TituloPagina}"
                                  MostrarBotonAtras="True"
@@ -180,11 +175,19 @@
                                         IsEnabled="{Binding EsEdicion}" />
                             </Border>
 
+                            <!-- ===== Unidad: selector con buscador ===== -->
                             <Label Text="Unidad" Style="{StaticResource EtiquetaSeccion}" />
                             <Border Style="{StaticResource CampoBorder}">
-                                <Picker ItemsSource="{Binding Vehiculos}"
-                                        ItemDisplayBinding="{Binding VchNombreCompleto}"
-                                        SelectedItem="{Binding VehiculoSeleccionado}" />
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SeleccionarUnidadCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Label Grid.Column="0" FontSize="13" VerticalOptions="Center"
+                                           LineBreakMode="TailTruncation"
+                                           Text="{Binding VehiculoSeleccionado.VchNombreCompleto, TargetNullValue='Selecciona una unidad'}" />
+                                    <Label Grid.Column="1" Text="›" FontSize="20" VerticalOptions="Center"
+                                           TextColor="{StaticResource ColorPrimario}" Margin="8,0,0,0" />
+                                </Grid>
                             </Border>
 
                             <Label Text="Cuadrilla / Tractor" Style="{StaticResource EtiquetaSeccion}" />
@@ -228,11 +231,19 @@
                                 </Grid>
                             </VerticalStackLayout>
 
+                            <!-- ===== Jefe de Cuadrilla: selector con buscador ===== -->
                             <Label Text="Jefe de Cuadrilla" Style="{StaticResource EtiquetaSeccion}" />
                             <Border Style="{StaticResource CampoBorder}">
-                                <Picker ItemsSource="{Binding JefesCuadrilla}"
-                                        ItemDisplayBinding="{Binding VchNombre}"
-                                        SelectedItem="{Binding JefeCuadrillaSeleccionado}" />
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SeleccionarJefeCuadrillaCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Label Grid.Column="0" FontSize="13" VerticalOptions="Center"
+                                           LineBreakMode="TailTruncation"
+                                           Text="{Binding JefeCuadrillaSeleccionado.VchNombre, TargetNullValue='Selecciona un jefe de cuadrilla'}" />
+                                    <Label Grid.Column="1" Text="›" FontSize="20" VerticalOptions="Center"
+                                           TextColor="{StaticResource ColorPrimario}" Margin="8,0,0,0" />
+                                </Grid>
                             </Border>
 
                             <Label Text="Tipo de cuadrilla" Style="{StaticResource EtiquetaSeccion}" Margin="0,8,0,0" />
@@ -316,9 +327,7 @@
                         <VerticalStackLayout Spacing="4">
                             <Label Text="Insumos" Style="{StaticResource TituloSeccion}" Margin="0,0,0,6" />
 
-                            <!-- ===== PASADA 6: reemplaza el Picker nativo (lista larga, sin buscador,
-                                 mala experiencia con ~380 preparaciones) por SearchablePickerPage,
-                                 abierto vía SeleccionarPreparacionCommand. ===== -->
+                            <!-- ===== Preparación: selector con buscador ===== -->
                             <Label Text="Preparación" Style="{StaticResource EtiquetaSeccion}" />
                             <Border Style="{StaticResource CampoBorder}">
                                 <Grid ColumnDefinitions="*,Auto">
@@ -429,11 +438,19 @@
                         <VerticalStackLayout Spacing="4">
                             <Label Text="Equipo" Style="{StaticResource TituloSeccion}" Margin="0,0,0,6" />
 
+                            <!-- ===== Equipo: selector con buscador ===== -->
                             <Label Text="Equipo" Style="{StaticResource EtiquetaSeccion}" />
                             <Border Style="{StaticResource CampoBorder}">
-                                <Picker ItemsSource="{Binding Equipos}"
-                                        ItemDisplayBinding="{Binding VchNombreConCodigo}"
-                                        SelectedItem="{Binding EquipoSeleccionado}" />
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SeleccionarEquipoCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Label Grid.Column="0" FontSize="13" VerticalOptions="Center"
+                                           LineBreakMode="TailTruncation"
+                                           Text="{Binding EquipoSeleccionado.VchNombreConCodigo, TargetNullValue='Selecciona un equipo'}" />
+                                    <Label Grid.Column="1" Text="›" FontSize="20" VerticalOptions="Center"
+                                           TextColor="{StaticResource ColorPrimario}" Margin="8,0,0,0" />
+                                </Grid>
                             </Border>
 
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
