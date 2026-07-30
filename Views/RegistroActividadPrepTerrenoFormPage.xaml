@@ -168,8 +168,10 @@
 
                                 <VerticalStackLayout Grid.Column="1">
                                     <Label Text="Fecha" Style="{StaticResource EtiquetaSeccion}" />
-                                    <Border Style="{StaticResource CampoBorder}" BackgroundColor="{AppThemeBinding Light=AliceBlue, Dark=#2A2A2A}">
-                                        <DatePicker Date="{Binding Fecha}" Format="dd/MM/yyyy" IsEnabled="False" />
+                                    <Border Style="{StaticResource CampoBorder}">
+                                        <DatePicker Date="{Binding Fecha}"
+MaximumDate="{Binding FechaMaxima}"
+Format="dd/MM/yyyy" />
                                     </Border>
                                 </VerticalStackLayout>
                             </Grid>

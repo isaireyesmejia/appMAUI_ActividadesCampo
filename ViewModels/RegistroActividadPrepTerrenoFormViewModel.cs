@@ -113,7 +113,12 @@ namespace agaverosActividades.ViewModels
         [ObservableProperty] private DateTime fecha = DateTime.Now;
 
         /// <summary>True cuando el formulario abrió en modo Edición.</summary>
-        [ObservableProperty] private bool esEdicion;
+        [ObservableProperty]
+        private bool esEdicion;
+
+        /// <summary>Límite superior para el DatePicker de Fecha: no se permite capturar
+        /// actividades con fecha futura, solo hoy o hacia atrás.</summary>
+        public DateTime FechaMaxima => DateTime.Today;
 
         [ObservableProperty] private ObservableCollection<PredioModel> predios = new();
         [ObservableProperty] private PredioModel predioSeleccionado;

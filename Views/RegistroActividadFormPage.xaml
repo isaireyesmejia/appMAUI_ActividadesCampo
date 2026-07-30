@@ -158,10 +158,10 @@
 
                                 <VerticalStackLayout Grid.Column="1">
                                     <Label Text="Fecha" Style="{StaticResource EtiquetaSeccion}" />
-                                    <Border Style="{StaticResource CampoBorder}"
-                                            BackgroundColor="{Binding EsEdicion, Converter={StaticResource BoolToFrameColorConverter}}">
-                                        <DatePicker Date="{Binding Fecha}" IsEnabled="{Binding EsEdicion}"
-                                                    Format="dd/MM/yyyy" />
+                                    <Border Style="{StaticResource CampoBorder}">
+                                        <DatePicker Date="{Binding Fecha}"
+                MaximumDate="{Binding FechaMaxima}"
+                Format="dd/MM/yyyy" />
                                     </Border>
                                 </VerticalStackLayout>
                             </Grid>
@@ -260,11 +260,18 @@
 
                             <Label Text="Proveedor" Style="{StaticResource EtiquetaSeccion}" />
                             <Border Style="{StaticResource CampoBorder}"
-                                    BackgroundColor="{Binding ProveedorHabilitado, Converter={StaticResource BoolToFrameColorConverter}}">
-                                <Picker ItemsSource="{Binding Proveedores}"
-                                        ItemDisplayBinding="{Binding VchRazonSocial}"
-                                        SelectedItem="{Binding ProveedorSeleccionado}"
-                                        IsEnabled="{Binding ProveedorHabilitado}" />
+        BackgroundColor="{Binding ProveedorHabilitado, Converter={StaticResource BoolToFrameColorConverter}}"
+        IsEnabled="{Binding ProveedorHabilitado}">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SeleccionarProveedorCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Label Grid.Column="0" FontSize="13" VerticalOptions="Center"
+               LineBreakMode="TailTruncation"
+               Text="{Binding ProveedorSeleccionado.VchRazonSocial, TargetNullValue='Selecciona un proveedor'}" />
+                                    <Label Grid.Column="1" Text="›" FontSize="20" VerticalOptions="Center"
+               TextColor="{StaticResource ColorPrimario}" Margin="8,0,0,0" />
+                                </Grid>
                             </Border>
                         </VerticalStackLayout>
                     </Border>

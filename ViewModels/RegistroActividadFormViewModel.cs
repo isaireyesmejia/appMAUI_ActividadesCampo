@@ -208,6 +208,10 @@ namespace agaverosActividades.ViewModels
         [ObservableProperty]
         private bool esEdicion;
 
+        /// <summary>Límite superior para el DatePicker de Fecha: no se permite capturar
+        /// actividades con fecha futura, solo hoy o hacia atrás.</summary>
+        public DateTime FechaMaxima => DateTime.Today;
+
         [ObservableProperty]
         private ObservableCollection<PredioModel> predios = new();
 
@@ -455,7 +459,18 @@ namespace agaverosActividades.ViewModels
             if (seleccion != null)
                 PreparacionSeleccionada = seleccion;
         }
+        /// <summary>Abre el selector con buscador para Proveedor.</summary>
+        [RelayCommand]
+        private async Task SeleccionarProveedor()
+        {
+            var seleccion = await SearchablePickerPage.MostrarAsync(
+                titulo: "Proveedor",
+                items: Proveedores,
+                textoMostrar: p => p.VchRazonSocial);
 
+            if (seleccion != null)
+                ProveedorSeleccionado = seleccion;
+        }
         partial void OnPreparacionSeleccionadaChanged(PreparacionModel value)
         {
             if (value == null)
